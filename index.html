@@ -108,7 +108,9 @@ h1,h2,h3{margin:0;line-height:1.4}
 .day-chip{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 10px;text-align:center;cursor:pointer;transition:.18s;min-width:0;overflow-wrap:break-word}
 .day-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
 .day-chip.today{border-color:var(--rose);background:var(--rose-softer)}
-.day-chip.rest{background:var(--sage-soft);border-color:transparent}
+.day-chip.rest{background:linear-gradient(150deg,var(--sage-soft),var(--beige-soft));border:2px solid var(--sage)}
+.day-chip .rest-note{font-weight:800;font-size:.82rem;color:#5c7052;margin-top:3px;line-height:1.5}
+[data-theme="dark"] .day-chip .rest-note{color:var(--sage)}
 .day-chip .dn{font-weight:800}
 .day-chip .dd{color:var(--ink2);font-size:.8rem}
 .day-chip .cnt{font-size:.8rem;margin-top:4px}
@@ -161,14 +163,30 @@ h1,h2,h3{margin:0;line-height:1.4}
 .tl-body{flex:1;min-width:0}
 .tl-break{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:.83rem;padding:2px 14px 2px 0}
 .prayer-marker{display:flex;gap:10px;align-items:center;background:var(--sky-soft);border:1px dashed var(--sky);border-radius:var(--r-md);padding:9px 14px;margin:6px 0;font-size:.9rem}
-/* week board — minmax(0,1fr) so columns can shrink below content size and all 7 days (incl. Friday, the last/leftmost in RTL) always fit on screen with no horizontal overflow */
-.week-board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;align-items:start}
+/* week board — 6 workday columns (minmax(0,1fr) so they always fit with no horizontal overflow); the rest day (Friday) spans the full width below them as a hero card via .wday.rest{grid-column:1/-1} */
+.week-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px;align-items:start}
 @media(max-width:1080px){.week-board{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:680px){.week-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:400px){.week-board{grid-template-columns:minmax(0,1fr)}}
 .wday{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;min-height:120px;min-width:0}
 .wday.today{border-color:var(--rose);box-shadow:0 0 0 2px var(--rose-soft)}
-.wday.rest{background:var(--sage-soft);border-color:var(--sage);box-shadow:0 0 0 1px var(--sage)}
+.wday.rest{grid-column:1/-1;background:linear-gradient(150deg,var(--sage-soft),var(--beige-soft) 72%);border:2px solid var(--sage);box-shadow:var(--shadow-sm);padding:0;overflow:hidden}
+.wday.rest.today{border-color:var(--rose);box-shadow:0 0 0 2px var(--rose-soft)}
+/* Friday hero: the rest day gets a full-width feature card, not a squeezed cell */
+.friday-hero{text-align:center;padding:32px 24px 20px}
+.friday-hero .fh-icon{width:80px;height:80px;margin:0 auto 12px;border-radius:50%;background:var(--surface);border:2px solid var(--sage);display:grid;place-items:center;font-size:2.6rem;box-shadow:var(--shadow-sm)}
+.friday-hero .fh-title{font-size:1.7rem;font-weight:900;line-height:1.4;margin-top:10px}
+.friday-hero .fh-date{color:var(--ink2);font-weight:700;font-size:.98rem;margin-top:2px}
+.fh-phrase{font-family:"Amiri",serif;font-size:clamp(1.4rem,3.6vw,1.75rem);line-height:2;font-weight:700;color:var(--ink);max-width:760px;margin:16px auto 0}
+.fh-divider{display:flex;align-items:center;gap:10px;max-width:340px;margin:18px auto 0;font-size:1.05rem}
+.fh-divider::before,.fh-divider::after{content:"";flex:1;height:2px;border-radius:99px;background:var(--sage);opacity:.55}
+.fh-pillars{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+.fh-pillars .chip{background:var(--surface);border:1px solid var(--sage);color:var(--ink);font-size:.85rem;font-weight:800;padding:3px 14px}
+.friday-body{padding:2px 18px 18px}
+.friday-tasks{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-top:9px}
+.friday-tasks .wtask{margin-top:0}
+.friday-empty{text-align:center;color:var(--ink2);font-weight:700;font-size:1rem;padding:8px 0 2px}
+@media(max-width:560px){.friday-hero{padding:26px 14px 16px}.friday-hero .fh-title{font-size:1.45rem}.fh-phrase{font-size:1.32rem;line-height:1.95}}
 .wday h3{font-size:.98rem;display:flex;justify-content:space-between;align-items:flex-start;gap:6px;flex-wrap:wrap}
 .wday h3 .wd-name{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}
 .wday h3 .wd-date{color:var(--ink2);font-size:.76rem;font-weight:700;white-space:nowrap;padding-top:2px}
@@ -255,8 +273,9 @@ input[type="checkbox"].sw:checked::after{transform:translateX(-20px)}
 .prayer-banner button{background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:9px;padding:5px 12px;font-weight:700}
 .empty{text-align:center;padding:34px 16px;color:var(--ink2)}
 .empty .big-ic{font-size:2.4rem;margin-bottom:6px}
-.rest-hero{text-align:center;padding:36px 22px;background:linear-gradient(140deg,var(--sage-soft),var(--beige-soft));border:1px solid var(--line);border-radius:24px}
-.rest-hero .big-ic{font-size:3rem}
+.rest-hero{text-align:center;padding:42px 22px;background:linear-gradient(140deg,var(--sage-soft),var(--beige-soft));border:2px solid var(--sage);border-radius:24px}
+.rest-hero .big-ic{font-size:3.4rem}
+.rest-hero .rest-phrase{font-family:"Amiri",serif;font-size:clamp(1.4rem,3.6vw,1.7rem);line-height:2;font-weight:700;color:var(--ink);display:block;max-width:760px;margin:12px auto 0}
 .care-item{display:flex;gap:11px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer}
 .care-item input{width:20px;height:20px;accent-color:var(--sage)}
 .care-item.done span{text-decoration:line-through;color:var(--ink2)}
@@ -804,7 +823,7 @@ function renderDashboard(){
  // week strip
  const ws=weekStartOf(now);let strip="";
  for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d),s=dayStats(k);const isT=k===tk,isR=d.getDay()===S.settings.restDay;
-  strip+='<div class="day-chip '+(isT?"today":"")+(isR?" rest":"")+'" data-day="'+k+'"><div class="dn">'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+'</div><div class="dd">'+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+'</div><div class="cnt">'+(s.total?s.done+"/"+s.total+" مهمة":"لا مهام")+'</div><div class="progress" style="margin-top:6px"><i style="width:'+s.pct+'%"></i></div><div class="tiny muted">'+s.pct+'%</div></div>'}
+  strip+='<div class="day-chip '+(isT?"today":"")+(isR?" rest":"")+'" data-day="'+k+'"><div class="dn">'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+'</div><div class="dd">'+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+'</div>'+(isR?'<div class="rest-note">يوم راحة وعبادة 🌿</div>':"")+'<div class="cnt">'+(s.total?s.done+"/"+s.total+" مهمة":"لا مهام")+'</div><div class="progress" style="margin-top:6px"><i style="width:'+s.pct+'%"></i></div><div class="tiny muted">'+s.pct+'%</div></div>'}
  $("#weekStrip").innerHTML=strip;
  $$("#weekStrip .day-chip").forEach(ch=>ch.onclick=()=>{selectedDate=ch.dataset.day;go("day")});
  // today tasks
@@ -841,9 +860,21 @@ function renderWeek(){
  let html="";
  for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d);const ts=tasksOn(k).filter(match);const isR=d.getDay()===S.settings.restDay,isT=k===todayKey();
   const dn=ts.filter(t=>t.status==="done").length,pct=ts.length?Math.round(dn/ts.length*100):0;
-  html+='<div class="wday '+(isT?"today":"")+(isR?" rest":"")+'"><h3><span class="wd-name">'+DAY_NAMES[d.getDay()]+(isR?' <span class="badge rest-badge">راحة 🌿</span>':"")+(isT?' <span class="badge next">اليوم</span>':"")+'</span><span class="wd-date">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
+  if(isR){
+   /* Friday / rest day: full-width hero card — its message is the feature, not a line in a cell */
+   html+='<div class="wday rest'+(isT?" today":"")+'"><div class="friday-hero"><div class="fh-icon">🌿</div>'
+   +'<div><span class="badge rest-badge">يوم الراحة الأسبوعي</span>'+(isT?' <span class="badge next">اليوم</span>':"")+'</div>'
+   +'<h3 class="fh-title">'+DAY_NAMES[d.getDay()]+'</h3><div class="fh-date">'+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+" "+d.getFullYear()+'</div>'
+   +'<p class="fh-phrase">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿</p>'
+   +'<div class="fh-divider"><span>🌿</span></div>'
+   +'<div class="fh-pillars"><span class="chip">🕌 صلاة وعبادة</span><span class="chip">📖 قرآن وذكر</span><span class="chip">☕ راحة وتجديد طاقة</span></div></div>'
+   +'<div class="friday-body">'
+   +(ts.length?'<div class="wprog"><i style="width:'+pct+'%"></i></div><div class="tiny muted" style="margin-top:4px">أنجزتِ '+dn+' من '+ts.length+' مهام</div><div class="friday-tasks">'+ts.map(t=>weekTaskCard(t)).join("")+'</div>':'<div class="friday-empty">لا مهام في هذا اليوم — اليوم للراحة والعبادة 🌿</div>')
+   +'<button class="btn sm soft" style="width:100%;margin-top:10px" data-add-day="'+k+'">＋ إضافة مهمة</button></div></div>';
+   continue;
+  }
+  html+='<div class="wday '+(isT?"today":"")+'"><h3><span class="wd-name">'+DAY_NAMES[d.getDay()]+(isT?' <span class="badge next">اليوم</span>':"")+'</span><span class="wd-date">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
   +(ts.length?'<div class="wprog"><i style="width:'+pct+'%"></i></div><div class="tiny muted" style="margin-top:4px">أنجزتِ '+dn+' من '+ts.length+' مهام</div>':"")
-  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700;margin-top:6px">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿</div>':"")
   +(ts.length?ts.map(t=>weekTaskCard(t)).join(""):'<div class="tiny muted" style="padding:8px 2px">لا مهام مطابقة</div>')
   +'<button class="btn sm soft" style="width:100%;margin-top:9px" data-add-day="'+k+'">＋ إضافة</button></div>'}
  $("#weekBoard").innerHTML=html;
@@ -861,7 +892,7 @@ $("#copyPrevWeek").onclick=()=>{const ws=addDays(weekStartOf(new Date()),weekOff
 function renderDay(){
  const d=parseKey(selectedDate),isRest=d.getDay()===S.settings.restDay,isToday=selectedDate===todayKey();
  $("#dayPicker").value=selectedDate;
- $("#restDayBox").innerHTML=isRest?'<div class="rest-hero" style="margin-bottom:16px"><div class="big-ic">🌿</div><h2 style="font-size:1.4rem">اليوم يوم راحتك</h2><p style="margin:6px 0 0">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿<br><span class="small muted">'+pickDaily(PRAYER_QUOTES,2)+" — "+pickDaily(QUOTES,5)+'</span></p></div>':"";
+ $("#restDayBox").innerHTML=isRest?'<div class="rest-hero" style="margin-bottom:16px"><div class="big-ic">🌿</div><h2 style="font-size:1.65rem;font-weight:900">اليوم يوم راحتك</h2><span class="rest-phrase">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿</span><p class="small muted" style="margin:12px 0 0">'+pickDaily(PRAYER_QUOTES,2)+" — "+pickDaily(QUOTES,5)+'</p></div>':"";
  const ts=tasksOn(selectedDate);
  let items=[];
  ts.forEach(t=>items.push({m:mins(t.start),html:tlTask(t)}));
