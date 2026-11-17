@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#b98a90" />
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#221e20" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="مخططي اليومي" />
+<meta name="description" content="مخططي اليومي — منظم مهام يومي وأسبوعي مع مواقيت الصلاة والتذكير بها" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/svg+xml" href="icon.svg" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<title>مخططي اليومي — My Daily Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Amiri:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf6f1; --bg2:#f3ece3; --surface:#ffffff; --surface2:#f7f1ea;
+  --ink:#463c37; --ink2:#7d6f68; --ink3:#a08f87;
+  --rose:#b98a90; --rose-deep:#a06f76; --rose-soft:#f2e2df; --rose-softer:#f8eeec;
+  --beige:#e7dccb; --beige-soft:#f1e9db; --sage:#93a58c; --sage-soft:#e6ecdf;
+  --gold:#c2a15c; --gold-soft:#f3ead2; --sky:#8fa8b8; --sky-soft:#e3ebef;
+  --danger:#b3564d; --danger-soft:#f6e3e0;
+  --line:#e9ded2; --shadow:0 6px 24px rgba(120,90,80,.08);
+  --shadow-sm:0 2px 10px rgba(120,90,80,.07);
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+}
+[data-theme="dark"]{
+  --bg:#221e20; --bg2:#1c191b; --surface:#2c272a; --surface2:#332d31;
+  --ink:#efe6e1; --ink2:#c4b3ac; --ink3:#9b8a84;
+  --rose:#c99aa1; --rose-deep:#d8adb3; --rose-soft:#453338; --rose-softer:#3a2e33;
+  --beige:#4a4038; --beige-soft:#3b342c; --sage:#a3b89c; --sage-soft:#333d30;
+  --gold:#d3b878; --gold-soft:#453c26; --sky:#a3bfd0; --sky-soft:#2e3a42;
+  --danger:#d98a82; --danger-soft:#472e2b;
+  --line:#453c40; --shadow:0 6px 24px rgba(0,0,0,.35); --shadow-sm:0 2px 10px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Tajawal",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+button,[role="button"],select,summary,input:not([type="checkbox"]){min-height:2.25rem}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:.95rem;color:var(--ink)}
+a{color:var(--rose-deep)}
+h1,h2,h3{margin:0;line-height:1.4}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 90px}
+/* ===== Top bar ===== */
+.topbar{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.12rem}
+.brand .mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--rose-soft),var(--beige-soft));display:grid;place-items:center;font-size:1.15rem;border:1px solid var(--line)}
+.brand small{display:block;font-size:.72rem;font-weight:500;color:var(--ink2);line-height:1.2}
+.top-actions{margin-inline-start:auto;display:flex;gap:8px;align-items:center}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:1.05rem;position:relative;color:var(--ink)}
+.icon-btn .dot{position:absolute;top:7px;inset-inline-start:7px;width:9px;height:9px;border-radius:50%;background:var(--danger);display:none}
+.icon-btn .dot.on{display:block}
+/* ===== Nav ===== */
+.nav{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:999px;padding:7px 16px;font-weight:700;font-size:.92rem;display:flex;gap:7px;align-items:center;transition:.2s}
+.nav button.active{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:var(--shadow-sm)}
+[data-theme="dark"] .nav button.active{color:#241d20}
+/* ===== Cards & layout ===== */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:20px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}}
+@media(max-width:560px){.g2{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}}
+.sec-title{display:flex;align-items:center;gap:10px;margin:26px 0 12px;font-size:1.15rem;font-weight:800}
+.sec-title .sp{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.muted{color:var(--ink2)} .small{font-size:.85rem} .tiny{font-size:.76rem}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:8px 16px;font-weight:700;font-size:.92rem;display:inline-flex;gap:7px;align-items:center;justify-content:center;transition:.18s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+.btn.primary{background:var(--rose);border-color:var(--rose);color:#fff}
+[data-theme="dark"] .btn.primary{color:#241d20}
+.btn.soft{background:var(--rose-softer);border-color:var(--rose-soft);color:var(--rose-deep)}
+.btn.sage{background:var(--sage-soft);border-color:transparent;color:#5c7052}
+[data-theme="dark"] .btn.sage{color:var(--sage)}
+.btn.danger{background:var(--danger-soft);border-color:transparent;color:var(--danger)}
+.btn.sm{padding:5px 12px;font-size:.85rem;min-height:2rem;border-radius:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+/* ===== Hero ===== */
+.hero{margin-top:18px;background:linear-gradient(120deg,var(--rose-softer),var(--beige-soft) 55%,var(--sage-soft));border:1px solid var(--line);border-radius:24px;padding:26px;display:grid;grid-template-columns:1.5fr .8fr;gap:20px;align-items:center;box-shadow:var(--shadow-sm)}
+@media(max-width:760px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:1.7rem;font-weight:900}
+.hero .date-line{color:var(--ink2);font-weight:500;margin-top:2px}
+.clock{font-size:2.6rem;font-weight:900;letter-spacing:1px;line-height:1.1;font-variant-numeric:tabular-nums}
+.clock small{font-size:1rem;color:var(--rose-deep);font-weight:700}
+.quote{font-family:"Amiri",serif;font-size:1.18rem;line-height:1.9;background:color-mix(in srgb,var(--surface) 72%,transparent);border:1px dashed var(--rose);border-radius:var(--r-md);padding:12px 16px;margin-top:14px}
+.quote .who{font-family:"Tajawal";font-size:.8rem;color:var(--ink2)}
+.ring-box{text-align:center}
+.ring{width:150px;height:150px;margin:0 auto}
+.ring .pct{font-size:1.7rem;font-weight:900}
+.stat-num{font-size:1.55rem;font-weight:900;line-height:1.2}
+.stat-lbl{color:var(--ink2);font-size:.86rem;font-weight:500}
+.stat-card{text-align:center;padding:16px 10px}
+.progress{height:9px;background:var(--surface2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:99px;transition:width .5s}
+/* ===== Week strip ===== */
+.week-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:10px}
+@media(max-width:760px){.week-strip{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:460px){.week-strip{grid-template-columns:repeat(2,1fr)}}
+.day-chip{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 10px;text-align:center;cursor:pointer;transition:.18s}
+.day-chip:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.day-chip.today{border-color:var(--rose);background:var(--rose-softer)}
+.day-chip.rest{background:var(--sage-soft);border-color:transparent}
+.day-chip .dn{font-weight:800}
+.day-chip .dd{color:var(--ink2);font-size:.8rem}
+.day-chip .cnt{font-size:.8rem;margin-top:4px}
+/* ===== Prayer ===== */
+.prayer-card{background:linear-gradient(135deg,var(--surface),var(--sky-soft));border:1px solid var(--line)}
+.next-prayer{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:color-mix(in srgb,var(--surface) 75%,transparent);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 18px;margin-bottom:14px}
+.next-prayer .np-name{font-size:1.3rem;font-weight:900}
+.countdown{font-size:1.9rem;font-weight:900;font-variant-numeric:tabular-nums;color:var(--rose-deep);line-height:1.1}
+.prayer-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:820px){.prayer-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.prayer-grid{grid-template-columns:repeat(2,1fr)}}
+.prayer-item{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;text-align:center;position:relative}
+.prayer-item.next{border-color:var(--rose);box-shadow:0 0 0 2px var(--rose-soft)}
+.prayer-item.done{border-color:var(--sage);background:var(--sage-soft)}
+.prayer-item .pn{font-weight:800;font-size:1.02rem}
+.prayer-item .pt{font-size:1.15rem;font-weight:900;font-variant-numeric:tabular-nums}
+.prayer-item .ps{font-size:.75rem;color:var(--ink2)}
+.badge{display:inline-block;padding:1px 9px;border-radius:99px;font-size:.72rem;font-weight:700}
+.badge.next{background:var(--rose);color:#fff}
+.badge.done{background:var(--sage);color:#fff}
+.badge.now{background:var(--gold);color:#fff}
+.badge.wait{background:var(--surface2);color:var(--ink2);border:1px solid var(--line)}
+.prayed-btn{margin-top:8px;width:100%}
+/* ===== Tasks ===== */
+.task{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 15px;align-items:flex-start;transition:.18s}
+.task:hover{box-shadow:var(--shadow-sm)}
+.task.done{opacity:.72}
+.task.done .t-title{text-decoration:line-through}
+.task .bar{width:5px;align-self:stretch;border-radius:99px;flex:0 0 auto}
+.t-title{font-weight:800}
+.t-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 9px;border-radius:99px;font-size:.74rem;font-weight:700;background:var(--surface2);border:1px solid var(--line);color:var(--ink2)}
+.chip.pri-high{background:var(--danger-soft);color:var(--danger);border-color:transparent}
+.chip.pri-med{background:var(--gold-soft);color:#8a6d2f;border-color:transparent}
+[data-theme="dark"] .chip.pri-med{color:var(--gold)}
+.chip.pri-low{background:var(--sky-soft);color:#51707f;border-color:transparent}
+[data-theme="dark"] .chip.pri-low{color:var(--sky)}
+.task .acts{display:flex;gap:4px;margin-inline-start:auto;flex:0 0 auto;flex-wrap:wrap;justify-content:flex-end}
+.mini-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;font-size:.9rem;color:var(--ink2)}
+.mini-btn:hover{color:var(--ink);background:var(--surface2)}
+.check-btn{width:30px;height:30px;border-radius:50%;border:2px solid var(--rose);background:transparent;color:#fff;display:grid;place-items:center;font-size:.85rem;flex:0 0 auto;margin-top:2px}
+.check-btn.on{background:var(--sage);border-color:var(--sage)}
+/* timeline */
+.timeline{position:relative;padding-inline-start:8px}
+.tl-item{display:flex;gap:14px;padding:10px 0;position:relative}
+.tl-item::before{content:"";position:absolute;inset-inline-start:59px;top:0;bottom:0;width:2px;background:var(--line)}
+.tl-item:last-child::before{display:none}
+.tl-time{width:52px;flex:0 0 auto;text-align:center;font-weight:800;font-size:.85rem;font-variant-numeric:tabular-nums;padding-top:12px}
+.tl-dot{width:14px;height:14px;border-radius:50%;border:3px solid var(--surface);box-shadow:0 0 0 2px var(--line);flex:0 0 auto;margin-top:16px;position:relative;z-index:1}
+.tl-body{flex:1;min-width:0}
+.tl-break{display:flex;align-items:center;gap:8px;color:var(--ink2);font-size:.83rem;padding:2px 14px 2px 0}
+.prayer-marker{display:flex;gap:10px;align-items:center;background:var(--sky-soft);border:1px dashed var(--sky);border-radius:var(--r-md);padding:9px 14px;margin:6px 0;font-size:.9rem}
+/* week board */
+.week-board{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;align-items:start}
+@media(max-width:1100px){.week-board{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){.week-board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:460px){.week-board{grid-template-columns:1fr}}
+.wday{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;min-height:120px}
+.wday.today{border-color:var(--rose)}
+.wday.rest{background:var(--sage-soft)}
+.wday h3{font-size:.98rem;display:flex;justify-content:space-between;align-items:center}
+.wday .task{padding:9px 11px;margin-top:8px}
+.wday .t-title{font-size:.9rem}
+.wday .acts .mini-btn{width:30px;height:30px}
+/* calendar */
+.cal-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
+.cal-dow{text-align:center;font-weight:800;color:var(--ink2);font-size:.85rem;padding:4px 0}
+.cal-cell{min-height:86px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:7px;cursor:pointer;position:relative}
+.cal-cell:hover{border-color:var(--rose)}
+.cal-cell.dim{opacity:.38}
+.cal-cell.today{border-color:var(--rose);background:var(--rose-softer)}
+.cal-cell.rest{background:var(--sage-soft)}
+.cal-cell .num{font-weight:800;font-size:.9rem}
+.cal-cell .dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
+.cal-cell .dots i{width:8px;height:8px;border-radius:50%;display:block}
+.cal-cell .cc{font-size:.7rem;color:var(--ink2)}
+@media(max-width:560px){.cal-cell{min-height:62px}.cal-cell .cc{display:none}}
+/* timer */
+.timer-wrap{text-align:center;padding:34px 20px}
+.timer-ring{width:250px;height:250px;margin:0 auto;position:relative}
+.timer-time{position:absolute;inset:0;display:grid;place-content:center}
+.timer-time .big{font-size:3.2rem;font-weight:900;font-variant-numeric:tabular-nums;line-height:1}
+.timer-time .mode{color:var(--rose-deep);font-weight:800}
+.mode-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.mode-tabs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 18px;font-weight:800}
+.mode-tabs button.active{background:var(--rose);color:#fff;border-color:var(--rose)}
+[data-theme="dark"] .mode-tabs button.active{color:#241d20}
+.timer-btns{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.timer-btns .btn{padding:11px 26px;font-size:1rem;border-radius:14px}
+/* forms */
+.field{margin-bottom:13px}
+.field label{display:block;font-weight:700;font-size:.88rem;margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:9px 12px;outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px var(--rose-soft)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.frow{grid-template-columns:1fr}}
+.err{background:var(--danger-soft);color:var(--danger);border-radius:10px;padding:9px 13px;font-size:.88rem;font-weight:600;display:none;margin-bottom:12px}
+.err.on{display:block}
+.warn-note{background:var(--gold-soft);color:#7a5c1e;border:1px solid var(--gold);border-radius:10px;padding:9px 13px;font-size:.88rem;font-weight:600;display:none;margin-bottom:12px}
+[data-theme="dark"] .warn-note{color:var(--gold)}
+.warn-note.on{display:block}
+.switch-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.switch-row:last-child{border-bottom:none}
+.switch-row .grow{flex:1}
+input[type="checkbox"].sw{appearance:none;width:46px;height:26px;border-radius:99px;background:var(--beige);position:relative;cursor:pointer;transition:.2s;flex:0 0 auto;min-height:26px}
+input[type="checkbox"].sw:checked{background:var(--sage)}
+input[type="checkbox"].sw::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+input[type="checkbox"].sw:checked::after{transform:translateX(-20px)}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(50,35,35,.45);backdrop-filter:blur(3px);z-index:100;display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:22px 12px}
+.modal-bg.on{display:flex}
+.modal{background:var(--surface);border-radius:22px;width:100%;max-width:560px;padding:24px;box-shadow:var(--shadow);animation:pop .22s ease}
+@keyframes pop{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
+.modal h2{font-size:1.2rem;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal h2 .x{margin-inline-start:auto}
+/* toast */
+#toasts{position:fixed;bottom:18px;inset-inline-start:18px;z-index:200;display:flex;flex-direction:column;gap:9px;max-width:min(92vw,380px)}
+.toast{background:var(--surface);border:1px solid var(--line);border-inline-start:5px solid var(--sage);border-radius:14px;box-shadow:var(--shadow);padding:12px 16px;font-weight:600;font-size:.93rem;animation:pop .25s ease;display:flex;gap:9px;align-items:flex-start}
+.toast.warn{border-inline-start-color:var(--gold)}
+.toast.err-t{border-inline-start-color:var(--danger)}
+/* banner */
+.prayer-banner{position:fixed;top:74px;inset-inline:0;margin:0 auto;max-width:560px;width:calc(100% - 24px);z-index:150;background:linear-gradient(120deg,var(--rose),var(--rose-deep));color:#fff;border-radius:16px;padding:14px 18px;box-shadow:var(--shadow);display:none;align-items:center;gap:12px;font-weight:700}
+.prayer-banner.on{display:flex}
+.prayer-banner button{background:rgba(255,255,255,.22);border:none;color:#fff;border-radius:9px;padding:5px 12px;font-weight:700}
+.empty{text-align:center;padding:34px 16px;color:var(--ink2)}
+.empty .big-ic{font-size:2.4rem;margin-bottom:6px}
+.rest-hero{text-align:center;padding:36px 22px;background:linear-gradient(140deg,var(--sage-soft),var(--beige-soft));border:1px solid var(--line);border-radius:24px}
+.rest-hero .big-ic{font-size:3rem}
+.care-item{display:flex;gap:11px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 14px;cursor:pointer}
+.care-item input{width:20px;height:20px;accent-color:var(--sage)}
+.care-item.done span{text-decoration:line-through;color:var(--ink2)}
+.cat-row{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px dashed var(--line)}
+.cat-row:last-child{border-bottom:none}
+.cat-ic{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:1.05rem;flex:0 0 auto}
+.bar-row{display:flex;align-items:center;gap:10px;margin:8px 0}
+.bar-row .lbl{width:64px;font-weight:700;font-size:.88rem}
+.bar-row .val{width:44px;text-align:end;font-weight:800;font-size:.88rem;font-variant-numeric:tabular-nums}
+.notif-panel{position:absolute;top:52px;inset-inline-end:0;width:min(92vw,360px);background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:14px;display:none;z-index:80}
+.notif-panel.on{display:block}
+.notif-item{padding:9px 4px;border-bottom:1px dashed var(--line);font-size:.9rem}
+.notif-item:last-child{border-bottom:none}
+.searchbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}
+.searchbar input,.searchbar select{border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:8px 12px}
+.searchbar input{flex:1;min-width:170px}
+.view{display:none}.view.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.goal-row{display:flex;gap:12px;align-items:flex-start;padding:11px 0;border-bottom:1px dashed var(--line)}
+.goal-row:last-child{border-bottom:none}
+.hist-day{border:1px solid var(--line);border-radius:14px;padding:13px 16px;margin-bottom:10px;background:var(--surface)}
+.hist-prayers{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+footer{text-align:center;color:var(--ink3);font-size:.8rem;padding:10px 0 4px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand"><span class="mark">🌸</span><span>مخططي اليومي<small>My Daily Planner</small></span></div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" title="الوضع الليلي / النهاري" aria-label="تبديل المظهر">🌙</button>
+      <div style="position:relative">
+        <button class="icon-btn" id="bellBtn" title="التنبيهات" aria-label="التنبيهات">🔔<span class="dot" id="bellDot"></span></button>
+        <div class="notif-panel" id="notifPanel">
+          <div style="display:flex;justify-content:space-between;align-items:center"><strong>التنبيهات</strong><button class="btn sm" id="clearNotifs">مسح الكل</button></div>
+          <div id="notifList"></div>
+        </div>
+      </div>
+      <button class="btn primary sm" id="quickAdd">＋ مهمة جديدة</button>
+    </div>
+    <nav class="nav" id="mainNav" style="width:100%">
+      <button data-view="dashboard" class="active">🏠 الرئيسية</button>
+      <button data-view="week">🗓️ الأسبوع</button>
+      <button data-view="day">⏰ اليوم</button>
+      <button data-view="timer">🍅 المؤقّت</button>
+      <button data-view="calendar">📅 التقويم</button>
+      <button data-view="stats">📊 الإحصائيات</button>
+      <button data-view="settings">⚙️ الإعدادات</button>
+    </nav>
+  </div>
+</header>
+
+<div class="prayer-banner" id="prayerBanner"><span style="font-size:1.4rem">🕌</span><span id="prayerBannerText" style="flex:1"></span><button id="prayerBannerPrayed">صليت ✓</button><button id="prayerBannerClose">إغلاق</button></div>
+
+<div class="wrap">
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="view on" id="view-dashboard">
+    <div class="hero">
+      <div>
+        <h1 id="welcomeMsg">أهلاً بك 🌷</h1>
+        <div class="date-line" id="todayLine"></div>
+        <div class="quote"><span id="dailyQuote"></span><div class="who" id="quoteCustomNote"></div></div>
+      </div>
+      <div class="ring-box">
+        <div class="clock"><span id="clockTime">--:--</span> <small id="clockSec"></small></div>
+        <div class="muted small" id="clockPeriod"></div>
+        <svg class="ring" viewBox="0 0 120 120" style="margin-top:10px">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" stroke-width="10"/>
+          <circle id="ringFg" cx="60" cy="60" r="52" fill="none" stroke="var(--rose)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"/>
+          <text x="60" y="58" text-anchor="middle" class="pct" fill="var(--ink)" id="ringPct" style="font-size:1.5rem;font-weight:900">0%</text>
+          <text x="60" y="78" text-anchor="middle" fill="var(--ink2)" style="font-size:.62rem">إنجاز اليوم</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="grid g4" style="margin-top:16px">
+      <div class="card stat-card"><div class="stat-num" id="stTotal">0</div><div class="stat-lbl">مهام اليوم</div></div>
+      <div class="card stat-card"><div class="stat-num" style="color:var(--sage)" id="stDone">0</div><div class="stat-lbl">تم إنجازها ✓</div></div>
+      <div class="card stat-card"><div class="stat-num" style="color:var(--rose-deep)" id="stLeft">0</div><div class="stat-lbl">متبقية</div></div>
+      <div class="card stat-card"><div class="stat-num" id="stHours">0</div><div class="stat-lbl">ساعات عمل / مذاكرة</div></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px"><strong>⏸️ إجمالي وقت الراحة اليوم: <span id="stBreak">0</span></strong><span class="muted small" id="stPctText"></span></div>
+      <div class="progress" style="margin-top:10px"><i id="dayProgress" style="width:0%"></i></div>
+    </div>
+
+    <!-- Prayer card -->
+    <h2 class="sec-title">🕌 مواقيت الصلاة <span class="sp"><span class="chip" id="prayerCityChip">📍 المنيا</span><button class="btn sm soft" id="prayerRefresh">↻ تحديث</button><button class="btn sm" id="prayerGotoSettings">⚙️ الإعدادات</button></span></h2>
+    <div class="card prayer-card" id="prayerCard">
+      <div id="prayerLoading" class="empty"><div class="big-ic">🕌</div>جارٍ جلب مواقيت الصلاة…</div>
+      <div id="prayerError" class="empty" style="display:none"><div class="big-ic">📡</div><div id="prayerErrorText">تعذّر جلب مواقيت الصلاة الآن — تحققي من اتصال الإنترنت ثم حاولي مجددًا. ستتم إعادة المحاولة تلقائيًا، ويمكنك أيضًا الضغط على «إعادة المحاولة».</div><div class="tiny muted" id="prayerErrorDetail" style="margin-top:8px"></div><button class="btn primary" style="margin-top:12px" id="prayerRetry">إعادة المحاولة</button></div>
+      <div id="prayerBody" style="display:none">
+        <div class="next-prayer">
+          <div><div class="muted small">الصلاة القادمة</div><div class="np-name" id="nextPrayerName">—</div><div class="tiny muted" id="hijriLine"></div></div>
+          <div style="margin-inline-start:auto;text-align:center"><div class="muted small">المتبقي عليها</div><div class="countdown" id="prayerCountdown">--:--:--</div></div>
+        </div>
+        <div class="tiny muted" id="prayerStaleNote" style="display:none;margin-bottom:10px">⚠️ تُعرض آخر مواقيت محفوظة محليًا — قد تحتاج إلى تحديث عند عودة الاتصال.</div>
+        <div class="prayer-grid" id="prayerGrid"></div>
+        <div class="quote" style="margin-top:14px"><span id="prayerQuote"></span></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button class="btn sm soft" id="prayerHistoryBtn">📖 سجل الصلوات السابقة</button>
+          <button class="btn sm" id="prayerAddAllBtn">➕ أضف الصلوات لجدول اليوم</button>
+        </div>
+        <div id="prayerHistory" style="display:none;margin-top:14px"></div>
+      </div>
+    </div>
+
+    <h2 class="sec-title">🗓️ نظرة على الأسبوع <span class="sp"><button class="btn sm" id="dashGotoWeek">فتح المخطط الأسبوعي ←</button></span></h2>
+    <div class="week-strip" id="weekStrip"></div>
+
+    <div class="grid g2" style="margin-top:6px">
+      <div>
+        <h2 class="sec-title">📌 مهام اليوم</h2>
+        <div class="grid" id="todayTasks" style="gap:10px"></div>
+      </div>
+      <div>
+        <h2 class="sec-title">⭐ المهمة &nbsp;·&nbsp; ⏳ المؤجلة</h2>
+        <div class="grid" id="specialLists" style="gap:10px"></div>
+        <h2 class="sec-title">📝 ملاحظات اليوم</h2>
+        <div class="card">
+          <textarea id="dailyNote" rows="4" placeholder="اكتبي ملاحظاتك عن اليوم هنا… تُحفظ تلقائيًا" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:var(--surface);resize:vertical"></textarea>
+          <div class="tiny muted" id="noteSavedAt"></div>
+        </div>
+        <h2 class="sec-title">🎯 أهداف الأسبوع</h2>
+        <div class="card">
+          <div id="goalsList"></div>
+          <div style="display:flex;gap:8px;margin-top:10px"><input id="goalInput" placeholder="هدف جديد لهذا الأسبوع…" style="flex:1;border:1px solid var(--line);border-radius:11px;padding:8px 12px;background:var(--surface)"><button class="btn primary sm" id="goalAdd">إضافة</button></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WEEK ============ -->
+  <section class="view" id="view-week">
+    <h2 class="sec-title">🗓️ المخطط الأسبوعي <span class="sp">
+      <button class="btn sm" id="weekPrev">‹ الأسبوع السابق</button>
+      <button class="btn sm soft" id="weekNow">هذا الأسبوع</button>
+      <button class="btn sm" id="weekNext">الأسبوع التالي ›</button>
+      <button class="btn sm sage" id="copyPrevWeek">⧉ نسخ الأسبوع الماضي</button>
+    </span></h2>
+    <div class="muted" id="weekRange" style="margin-bottom:12px"></div>
+    <div class="searchbar">
+      <input id="searchInput" placeholder="🔍 ابحثي في المهام بالاسم…">
+      <select id="fCat"><option value="">كل التصنيفات</option></select>
+      <select id="fPri"><option value="">كل الأولويات</option><option value="high">عالية</option><option value="medium">متوسطة</option><option value="low">منخفضة</option></select>
+      <select id="fStatus"><option value="">كل الحالات</option><option value="todo">لم تبدأ</option><option value="doing">قيد التنفيذ</option><option value="done">مكتملة</option></select>
+    </div>
+    <div class="week-board" id="weekBoard"></div>
+  </section>
+
+  <!-- ============ DAY ============ -->
+  <section class="view" id="view-day">
+    <h2 class="sec-title">⏰ الجدول اليومي <span class="sp">
+      <button class="btn sm" id="dayPrev">‹ أمس</button>
+      <input type="date" id="dayPicker" style="border:1px solid var(--line);border-radius:11px;padding:6px 10px;background:var(--surface)">
+      <button class="btn sm" id="dayNext">غدًا ›</button>
+      <button class="btn sm primary" id="dayAddTask">＋ مهمة لهذا اليوم</button>
+    </span></h2>
+    <div id="restDayBox"></div>
+    <div class="card"><div class="timeline" id="dayTimeline"></div></div>
+    <h2 class="sec-title">💆‍♀️ قائمة العناية بالنفس <span class="tiny muted">(تظهر كاملة في يوم الراحة، ومتاحة كل يوم)</span></h2>
+    <div class="card"><div class="grid g2" id="careList" style="gap:10px"></div></div>
+  </section>
+
+  <!-- ============ TIMER ============ -->
+  <section class="view" id="view-timer">
+    <h2 class="sec-title">🍅 مؤقّت التركيز والراحة</h2>
+    <div class="card timer-wrap">
+      <div class="mode-tabs" id="modeTabs">
+        <button data-mode="focus" class="active">🎯 تركيز</button>
+        <button data-mode="short">☕ استراحة قصيرة</button>
+        <button data-mode="long">🌿 استراحة طويلة</button>
+      </div>
+      <div class="timer-ring">
+        <svg width="250" height="250" viewBox="0 0 250 250">
+          <circle cx="125" cy="125" r="112" fill="none" stroke="var(--line)" stroke-width="12"/>
+          <circle id="timerFg" cx="125" cy="125" r="112" fill="none" stroke="var(--rose)" stroke-width="12" stroke-linecap="round" stroke-dasharray="703.7" stroke-dashoffset="0" transform="rotate(-90 125 125)"/>
+        </svg>
+        <div class="timer-time"><div><div class="mode" id="timerModeLbl">جلسة تركيز</div><div class="big" id="timerText">25:00</div><div class="muted small" id="timerSessions">جلسات اليوم: 0</div></div></div>
+      </div>
+      <div class="timer-btns">
+        <button class="btn primary" id="timerStart">▶ بدء</button>
+        <button class="btn" id="timerPause" disabled>⏸ إيقاف مؤقت</button>
+        <button class="btn" id="timerReset">↺ إعادة ضبط</button>
+      </div>
+      <div class="quote" id="timerSuggest" style="display:none;max-width:520px;margin:18px auto 0"></div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-bottom:12px">⚙️ تخصيص مدد الجلسات (بالدقائق)</h3>
+      <div class="frow" style="grid-template-columns:repeat(3,1fr)">
+        <div class="field"><label>مدة التركيز</label><input type="number" id="pomoFocus" min="1" max="180"></div>
+        <div class="field"><label>استراحة قصيرة</label><input type="number" id="pomoShort" min="1" max="60"></div>
+        <div class="field"><label>استراحة طويلة</label><input type="number" id="pomoLong" min="1" max="90"></div>
+      </div>
+      <button class="btn primary" id="pomoSave">حفظ إعدادات المؤقّت</button>
+      <span class="muted small" id="pomoSavedMsg"></span>
+    </div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section class="view" id="view-calendar">
+    <h2 class="sec-title">📅 التقويم الشهري</h2>
+    <div class="card">
+      <div class="cal-head"><button class="btn sm" id="calPrev">‹ الشهر السابق</button><strong id="calTitle" style="font-size:1.1rem"></strong><button class="btn sm" id="calNext">الشهر التالي ›</button></div>
+      <div class="cal-grid" id="calDow"></div>
+      <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
+      <div class="tiny muted" style="margin-top:10px">🌿 = يوم الراحة الأسبوعي · النقاط الملوّنة = تصنيفات مهام اليوم · دوسي على أي يوم لعرض مهامه أو إضافة مهمة.</div>
+    </div>
+    <div id="calDayDetail"></div>
+  </section>
+
+  <!-- ============ STATS ============ -->
+  <section class="view" id="view-stats">
+    <h2 class="sec-title">📊 الإحصائيات والتقدّم</h2>
+    <div class="grid g4">
+      <div class="card stat-card"><div class="stat-num" id="stWeekPct">0%</div><div class="stat-lbl">إنجاز الأسبوع</div></div>
+      <div class="card stat-card"><div class="stat-num" style="color:var(--sage)" id="stWeekDone">0</div><div class="stat-lbl">مهام مكتملة هذا الأسبوع</div></div>
+      <div class="card stat-card"><div class="stat-num" style="color:var(--rose-deep)" id="stWeekPend">0</div><div class="stat-lbl">مهام معلّقة</div></div>
+      <div class="card stat-card"><div class="stat-num" id="stBestDay">—</div><div class="stat-lbl">أنشط يوم</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3 style="margin-bottom:8px">📈 اتجاه الإنتاجية خلال الأسبوع (مهام مكتملة)</h3><div id="trendChart"></div></div>
+      <div class="card"><h3 style="margin-bottom:8px">⏱️ التوازن بين العمل والراحة</h3>
+        <div class="bar-row"><span class="lbl">التركيز</span><div class="progress" style="flex:1"><i id="barFocus" style="background:var(--rose)"></i></div><span class="val" id="valFocus">0 س</span></div>
+        <div class="bar-row"><span class="lbl">الراحة</span><div class="progress" style="flex:1"><i id="barBreak" style="background:var(--sage)"></i></div><span class="val" id="valBreak">0 س</span></div>
+        <div class="bar-row"><span class="lbl">جلسات بومودورو</span><div class="progress" style="flex:1"><i id="barPomo" style="background:var(--gold)"></i></div><span class="val" id="valPomo">0</span></div>
+        <div class="muted small" id="statsNote" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px"><h3 style="margin-bottom:10px">🕌 متابعة الصلوات هذا الأسبوع</h3><div id="prayerWeekStats"></div></div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section class="view" id="view-settings">
+    <h2 class="sec-title">⚙️ الإعدادات</h2>
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <h3 style="margin-bottom:12px">👤 عام</h3>
+        <div class="field"><label>اسمك (يظهر في الترحيب)</label><input id="setName" placeholder="مثال: محمود"></div>
+        <div class="field"><label>المظهر</label><select id="setTheme"><option value="auto">تلقائي حسب الجهاز</option><option value="light">نهاري</option><option value="dark">ليلي</option></select></div>
+        <div class="field"><label>يوم الراحة الأسبوعي</label><select id="setRestDay"><option value="6">السبت</option><option value="0">الأحد</option><option value="1">الاثنين</option><option value="2">الثلاثاء</option><option value="3">الأربعاء</option><option value="4">الخميس</option><option value="5">الجمعة</option></select></div>
+        <div class="field"><label>عبارة تحفيزية مخصّصة (تترك فارغة للعبارات اليومية الجاهزة)</label><textarea id="setQuote" rows="2" placeholder="اكتبي عبارتك المفضلة…"></textarea></div>
+        <div class="switch-row"><div class="grow"><strong>تنبيهات المهام</strong><div class="tiny muted">تذكير عند بدء مهمة، وتنبيهات داخل التطبيق وإشعارات المتصفح</div></div><input type="checkbox" class="sw" id="setNotifTasks"></div>
+        <button class="btn primary" id="saveGeneral" style="margin-top:14px">حفظ الإعدادات العامة</button>
+        <button class="btn" id="askNotifPerm" style="margin-top:14px">🔔 طلب إذن إشعارات المتصفح</button>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:12px">🕌 إعدادات مواقيت الصلاة</h3>
+        <div class="frow">
+          <div class="field"><label>المدينة</label><select id="pCitySel"></select></div>
+          <div class="field"><label>الدولة</label><input id="pCountry" placeholder="Egypt"></div>
+        </div>
+        <div class="field"><label>مدينة مخصّصة (بالإنجليزية، تترك فارغة لاستخدام القائمة)</label><input id="pCityCustom" placeholder="e.g. Minya"></div>
+        <div class="frow">
+          <div class="field"><label>طريقة الحساب</label><select id="pMethod">
+            <option value="5">الهيئة المصرية العامة للمساحة</option>
+            <option value="3">رابطة العالم الإسلامي</option>
+            <option value="4">أم القرى — مكة المكرمة</option>
+            <option value="2">أمريكا الشمالية (ISNA)</option>
+            <option value="8">الخليج</option>
+            <option value="9">الكويت</option>
+            <option value="10">قطر</option>
+            <option value="11">سنغافورة</option>
+            <option value="13">تركيا (الشؤون الدينية)</option>
+          </select></div>
+          <div class="field"><label>المذهب لحساب العصر</label><select id="pSchool"><option value="0">شافعي / مالكي / حنبلي</option><option value="1">حنفي</option></select></div>
+        </div>
+        <button class="btn" id="pUseGeo">📍 استخدم موقعي الجغرافي</button>
+        <span class="tiny muted">التوقيت الصيفي يُضبط تلقائيًا حسب المدينة من مصدر المواقيت.</span>
+        <h4 style="margin:16px 0 4px">🔔 تذكيرات كل صلاة</h4>
+        <div id="pReminderRows"></div>
+        <button class="btn primary" id="savePrayerSettings" style="margin-top:14px">حفظ إعدادات الصلاة وتحديث المواقيت</button>
+      </div>
+    </div>
+
+    <h2 class="sec-title">🏷️ تصنيفات المهام <span class="sp"><button class="btn sm primary" id="catAdd">＋ تصنيف جديد</button></span></h2>
+    <div class="card" id="catList"></div>
+
+    <div class="card" style="margin-top:16px;border-color:var(--danger-soft)">
+      <h3 style="margin-bottom:8px">🗂️ البيانات</h3>
+      <p class="muted small" style="margin:0 0 12px">تُحفظ كل بياناتك محليًا في هذا المتصفح على هذا الجهاز. يمكنك تنزيل نسخة احتياطية أو استيرادها، أو مسح كل شيء والبدء من جديد.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="exportData">⬇ تنزيل نسخة احتياطية</button>
+        <label class="btn" style="cursor:pointer">⬆ استيراد نسخة<input type="file" id="importData" accept="application/json" hidden></label>
+        <button class="btn danger" id="wipeData">🗑 مسح كل البيانات</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>مخططي اليومي 🌸 خطوة صغيرة كل يوم تصنع فرقًا كبيرًا — بياناتك محفوظة في متصفحك على هذا الجهاز.</footer>
+</div>
+
+<!-- Task modal -->
+<div class="modal-bg" id="taskModal">
+  <div class="modal">
+    <h2><span id="taskModalTitle">مهمة جديدة</span><button class="mini-btn x" data-close="taskModal">✕</button></h2>
+    <div class="err" id="taskErr"></div>
+    <div class="warn-note" id="taskPrayerWarn" role="note"></div>
+    <form id="taskForm">
+      <input type="hidden" id="tfId">
+      <div class="field"><label>عنوان المهمة *</label><input id="tfTitle" placeholder="مثال: مذاكرة المحاضرة الأولى" required></div>
+      <div class="field"><label>وصف مختصر</label><textarea id="tfDesc" rows="2" placeholder="تفاصيل اختيارية…"></textarea></div>
+      <div class="frow">
+        <div class="field"><label>التاريخ *</label><input type="date" id="tfDate" required></div>
+        <div class="field"><label>التصنيف</label><select id="tfCat"></select></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>وقت البداية *</label><input type="time" id="tfStart" required></div>
+        <div class="field"><label>وقت النهاية *</label><input type="time" id="tfEnd" required></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>الأولوية</label><select id="tfPri"><option value="high">🔴 عالية</option><option value="medium" selected>🟡 متوسطة</option><option value="low">🔵 منخفضة</option></select></div>
+        <div class="field"><label>مدة الراحة بعدها (دقيقة)</label><input type="number" id="tfBreak" min="0" max="240" value="10"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>الحالة</label><select id="tfStatus"><option value="todo">لم تبدأ</option><option value="doing">قيد التنفيذ</option><option value="done">مكتملة</option></select></div>
+        <div class="field"><label>نقل إلى يوم (اختياري)</label><select id="tfMoveDay"><option value="">— نفس اليوم —</option></select></div>
+      </div>
+      <div class="switch-row"><div class="grow"><strong>⭐ مهمة مهمة</strong></div><input type="checkbox" class="sw" id="tfImportant"></div>
+      <div class="switch-row"><div class="grow"><strong>⏳ مؤجّلة</strong></div><input type="checkbox" class="sw" id="tfPostponed"></div>
+      <div style="display:flex;gap:9px;margin-top:16px;flex-wrap:wrap">
+        <button type="submit" class="btn primary" style="flex:1">💾 حفظ المهمة</button>
+        <button type="button" class="btn" data-close="taskModal">إلغاء</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Category modal -->
+<div class="modal-bg" id="catModal">
+  <div class="modal" style="max-width:430px">
+    <h2><span id="catModalTitle">تصنيف جديد</span><button class="mini-btn x" data-close="catModal">✕</button></h2>
+    <div class="err" id="catErr"></div>
+    <form id="catForm">
+      <input type="hidden" id="cfId">
+      <div class="field"><label>اسم التصنيف *</label><input id="cfName" required placeholder="مثال: تطوير الذات"></div>
+      <div class="frow">
+        <div class="field"><label>الأيقونة (إيموجي)</label><input id="cfIcon" maxlength="4" placeholder="🌱"></div>
+        <div class="field"><label>اللون</label><input type="color" id="cfColor" value="#b98a90" style="height:44px;padding:4px"></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:8px"><button type="submit" class="btn primary" style="flex:1">💾 حفظ</button><button type="button" class="btn" data-close="catModal">إلغاء</button></div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirm modal -->
+<div class="modal-bg" id="confirmModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:2.2rem">🌷</div>
+    <h2 style="justify-content:center" id="confirmTitle">هل أنت متأكدة؟</h2>
+    <p class="muted" id="confirmText"></p>
+    <div style="display:flex;gap:9px;justify-content:center;margin-top:14px"><button class="btn danger" id="confirmYes">نعم، تأكيد</button><button class="btn" data-close="confirmModal">تراجع</button></div>
+  </div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+"use strict";
+/* ================= Helpers ================= */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const pad=n=>String(n).padStart(2,"0");
+const dkey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parseKey=k=>{const[a,b,c]=k.split("-").map(Number);return new Date(a,b-1,c)};
+const todayKey=()=>dkey(new Date());
+const DAY_NAMES=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const WEEK_ORDER=[6,0,1,2,3,4,5]; // Saturday..Friday (JS getDay)
+const MONTH_NAMES=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+function fmtT(t){if(!t)return"";let[h,m]=t.split(":").map(Number);const p=h>=12?"م":"ص";h=h%12||12;return h+":"+pad(m)+" "+p}
+function mins(t){const[a,b]=t.split(":").map(Number);return a*60+b}
+function durText(m){if(m<=0)return"0 د";if(m<60)return m+" دقيقة";const h=Math.floor(m/60),r=m%60;return h+" س"+(r?" و "+r+" د":"")}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function weekStartOf(d){const x=new Date(d);const diff=(x.getDay()-6+7)%7;x.setDate(x.getDate()-diff);x.setHours(0,0,0,0);return x}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+
+/* ================= Quotes ================= */
+const QUOTES=[
+"كل يوم جديد هو فرصة جديدة لتصبحي نسخة أجمل من نفسك.",
+"لا تستعجلي النتائج؛ الزهرة لا تتفتح في يوم واحد.",
+"خطوة صغيرة اليوم، أقرب كثيرًا مما تظنين إلى هدفك.",
+"نظّمي وقتك بحب، وسيحبّك يومك في المقابل.",
+"الإنجاز لا يحتاج يومًا مثاليًا، بل بداية صادقة.",
+"راحتك ليست مكافأة على التعب، بل جزء من خطة النجاح.",
+"ما تزرعينه اليوم بهدوء، تحصدينه غدًا بفخر.",
+"ركّزي على مهمة واحدة في وقت واحد، وستدهشك النتيجة.",
+"صلاتك أولًا، ثم رتّبي حولها يومك كله.",
+"الانضباط اللطيف أقوى من الحماس المؤقت.",
+"أنت لا تحتاجين أن تفعلي كل شيء اليوم، فقط الأهم.",
+"ابتسمي، تنفّسي، وابدئي من حيث أنت الآن.",
+"كل دقيقة مرتّبة توفّر عليك ساعة من التشتت.",
+"نجاحك قصة تُكتب سطرًا كل يوم.",
+"كوني فخورة بكل مهمة صغيرة أنجزتِها.",
+"هدوءك قوة، وتنظيمك جمال.",
+"اليوم صفحة بيضاء؛ اكتبي فيها ما يليق بأحلامك.",
+"العادات الصغيرة اليومية تصنع حيوات عظيمة.",
+"لا تقارني يومك بيوم غيرك؛ لكل زهرة موسمها.",
+"ابدئي بالمهمة الأصعب، وسيصبح بقية اليوم أخف.",
+"وقتٌ للعمل، ووقتٌ للراحة، ووقتٌ لروحك — هذا هو التوازن.",
+"ثقي أن الله يبارك في الوقت حين يُستعمل فيما ينفع."];
+const PRAYER_QUOTES=[
+"الصلاة عماد الدين، وهي أول ما يُنظَّم به اليوم.",
+"حافظي على صلاتك؛ فهي صلتك بربك وسكينة قلبك.",
+"بين الأذان والإقامة دعوة لا تُرد — لا تنسي الدعاء.",
+"من حافظ على الصلوات الخمس كانت له نورًا وبرهانًا ونجاة.",
+"أقرب ما يكون العبد من ربه وهو ساجد، فأكثري من الدعاء.",
+"الصلاة راحة للقلب قبل أن تكون عبادة للجسد: أرحنا بها يا بلال.",
+"يومٌ يبدأ بالفجر لا يعرف الظلمة."];
+const CHEERS=["أحسنتِ! 🌸","رائع، استمري! ✨","خطوة جميلة نحو هدفك 💪","فخورون بكِ! 🌷","بارك الله في وقتك 🤍"];
+const pickDaily=(arr,extra=0)=>arr[(Math.floor(Date.now()/864e5)+extra)%arr.length];
+
+/* ================= State ================= */
+const LS="mdp_web_v1";
+const DEFAULT_CATS=[
+ {id:"study",name:"المذاكرة",icon:"📚",color:"#b98a90"},
+ {id:"work",name:"العمل",icon:"💼",color:"#8fa8b8"},
+ {id:"personal",name:"مهام شخصية",icon:"🌸",color:"#c2a15c"},
+ {id:"sport",name:"الرياضة",icon:"🏃‍♀️",color:"#93a58c"},
+ {id:"reading",name:"القراءة",icon:"📖",color:"#a58fb8"},
+ {id:"home",name:"أعمال منزلية",icon:"🏠",color:"#c08d6d"},
+ {id:"care",name:"العناية بالنفس",icon:"💆‍♀️",color:"#d29bb0"},
+ {id:"other",name:"أخرى",icon:"✨",color:"#9a938a"}];
+const CARE_ITEMS=["صلاة وذكر بهدوء 🕌","حمّام دافئ واسترخاء 🛁","قراءة ممتعة بلا هدف 📖","مشي خفيف في الهواء 🚶‍♀️","مشروبك المفضل ببطء ☕","العناية بالبشرة والشعر 💅","مكالمة شخص تحبينه 📞","نوم مبكر الليلة 🌙"];
+let S;
+function defaultState(){return{
+ tasks:[],categories:JSON.parse(JSON.stringify(DEFAULT_CATS)),
+ notes:{},goals:[],selfcare:{},prayerLog:{},pomoLog:{},notifs:[],
+ settings:{name:"",theme:"auto",restDay:5,customQuote:"",notifTasks:true},
+ pomo:{focus:25,short:5,long:15},
+ prayer:{city:"Minya",country:"Egypt",customCity:"",method:5,school:0,geo:null,
+   reminders:{Fajr:{on:true,offsets:[0]},Dhuhr:{on:true,offsets:[0]},Asr:{on:true,offsets:[0]},Maghrib:{on:true,offsets:[0]},Isha:{on:true,offsets:[0]}}},
+ prayerCache:null, copiedWeeks:{}
+}}
+function load(){try{const raw=localStorage.getItem(LS);if(raw){S=Object.assign(defaultState(),JSON.parse(raw));S.settings=Object.assign(defaultState().settings,S.settings);S.prayer=Object.assign(defaultState().prayer,S.prayer);S.pomo=Object.assign(defaultState().pomo,S.pomo);return}}catch(e){} S=defaultState();save()}
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+load();
+const catById=id=>S.categories.find(c=>c.id===id)||{name:"أخرى",icon:"✨",color:"#9a938a"};
+
+/* ================= Toast & notifications ================= */
+function toast(msg,type=""){const t=document.createElement("div");t.className="toast "+type;t.innerHTML="<span>"+(type==="warn"?"⚠️":type==="err-t"?"⛔":"✅")+"</span><span>"+esc(msg)+"</span>";$("#toasts").appendChild(t);setTimeout(()=>{t.style.opacity="0";setTimeout(()=>t.remove(),300)},4200)}
+function notify(title,body){S.notifs.unshift({id:uid(),title,body,time:new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"}),read:false});S.notifs=S.notifs.slice(0,30);save();renderNotifs();toast(title+" — "+body);if("Notification"in window&&Notification.permission==="granted"){try{new Notification(title,{body,icon:""})}catch(e){}}}
+function renderNotifs(){const un=S.notifs.some(n=>!n.read);$("#bellDot").classList.toggle("on",un);$("#notifList").innerHTML=S.notifs.length?S.notifs.map(n=>'<div class="notif-item"><strong>'+esc(n.title)+'</strong><div class="muted small">'+esc(n.body)+'</div><div class="tiny muted">'+esc(n.time)+'</div></div>').join(""):'<div class="empty" style="padding:16px">لا توجد تنبيهات بعد 🔕</div>'}
+$("#bellBtn").onclick=e=>{e.stopPropagation();$("#notifPanel").classList.toggle("on");S.notifs.forEach(n=>n.read=true);save();setTimeout(renderNotifs,600)};
+document.addEventListener("click",e=>{if(!e.target.closest("#notifPanel")&&!e.target.closest("#bellBtn"))$("#notifPanel").classList.remove("on")});
+$("#clearNotifs").onclick=()=>{S.notifs=[];save();renderNotifs()};
+
+/* ================= Confirm ================= */
+let confirmCb=null;
+function askConfirm(text,cb){$("#confirmText").textContent=text;confirmCb=cb;openModal("confirmModal")}
+$("#confirmYes").onclick=()=>{closeModal("confirmModal");if(confirmCb)confirmCb()};
+function openModal(id){$("#"+id).classList.add("on")}
+function closeModal(id){$("#"+id).classList.remove("on")}
+$$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+$$(".modal-bg").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("on")}));
+
+/* ================= Theme ================= */
+function applyTheme(){const t=S.settings.theme;const dark=t==="dark"||(t==="auto"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=dark?"dark":"light";$("#themeBtn").textContent=dark?"☀️":"🌙"}
+$("#themeBtn").onclick=()=>{const cur=document.documentElement.dataset.theme;S.settings.theme=cur==="dark"?"light":"dark";save();applyTheme();$("#setTheme").value=S.settings.theme};
+applyTheme();
+
+/* ================= Navigation ================= */
+let currentView="dashboard";
+function go(view){currentView=view;$$("#mainNav button").forEach(b=>b.classList.toggle("active",b.dataset.view===view));$$(".view").forEach(v=>v.classList.toggle("on",v.id==="view-"+view));window.scrollTo({top:0,behavior:"smooth"});render()}
+$$("#mainNav button").forEach(b=>b.onclick=()=>go(b.dataset.view));
+
+/* ================= Tasks core ================= */
+const tasksOn=key=>S.tasks.filter(t=>t.date===key).sort((a,b)=>a.start.localeCompare(b.start));
+function dayStats(key){const ts=tasksOn(key);const done=ts.filter(t=>t.status==="done");const work=ts.reduce((s,t)=>s+(mins(t.end)-mins(t.start)),0);const brk=ts.reduce((s,t)=>s+(+t.breakMin||0),0);return{total:ts.length,done:done.length,left:ts.length-done.length,work,brk,pct:ts.length?Math.round(done.length/ts.length*100):0}}
+function overlapCheck(date,start,end,ignoreId){return S.tasks.find(t=>t.date===date&&t.id!==ignoreId&&mins(start)<mins(t.end)&&mins(end)>mins(t.start))}
+function prayerConflict(date,start,end){if(!prayerToday||prayerToday.date!==date)return null;for(const p of PRAYERS){const pt=prayerToday.timings[p.key];if(!pt)continue;const pm=mins(pt);if(mins(start)<=pm&&pm<mins(end))return p}return null}
+function statusChip(st){return st==="done"?'<span class="chip" style="background:var(--sage-soft);color:#5c7052">✓ مكتملة</span>':st==="doing"?'<span class="chip" style="background:var(--gold-soft)">قيد التنفيذ</span>':'<span class="chip">لم تبدأ</span>'}
+function priChip(p){return p==="high"?'<span class="chip pri-high">🔴 عالية</span>':p==="low"?'<span class="chip pri-low">🔵 منخفضة</span>':'<span class="chip pri-med">🟡 متوسطة</span>'}
+function taskCard(t,compact){const c=catById(t.catId);return '<div class="task '+(t.status==="done"?"done":"")+'">'
+ +'<button class="check-btn '+(t.status==="done"?"on":"")+'" data-act="toggle" data-id="'+t.id+'" title="تبديل الإنجاز">'+(t.status==="done"?"✓":"")+'</button>'
+ +'<span class="bar" style="background:'+c.color+'"></span>'
+ +'<div style="flex:1;min-width:0"><div class="t-title">'+(t.important?"⭐ ":"")+esc(t.title)+(t.postponed?' <span class="chip">⏳ مؤجلة</span>':"")+'</div>'
+ +(t.desc&&!compact?'<div class="muted small">'+esc(t.desc)+'</div>':"")
+ +'<div class="t-meta"><span class="chip">🕐 '+fmtT(t.start)+" – "+fmtT(t.end)+'</span><span class="chip">⏱ '+durText(mins(t.end)-mins(t.start))+'</span><span class="chip">'+c.icon+" "+esc(c.name)+'</span>'+priChip(t.priority)+statusChip(t.status)+(+t.breakMin?'<span class="chip">☕ راحة '+t.breakMin+' د</span>':"")+'</div></div>'
+ +'<div class="acts"><button class="mini-btn" data-act="edit" data-id="'+t.id+'" title="تعديل">✏️</button><button class="mini-btn" data-act="dup" data-id="'+t.id+'" title="تكرار">⧉</button><button class="mini-btn" data-act="del" data-id="'+t.id+'" title="حذف">🗑️</button></div></div>'}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const t=S.tasks.find(x=>x.id===b.dataset.id);if(!t)return;const act=b.dataset.act;
+ if(act==="toggle"){t.status=t.status==="done"?"todo":"done";save();if(t.status==="done")toast(CHEERS[Math.floor(Math.random()*CHEERS.length)]+" أنجزتِ: "+t.title);render()}
+ if(act==="del")askConfirm("سيتم حذف مهمة «"+t.title+"» نهائيًا.",()=>{S.tasks=S.tasks.filter(x=>x.id!==t.id);save();toast("تم حذف المهمة");render()});
+ if(act==="dup"){const c=Object.assign({},t,{id:uid(),title:t.title+" (نسخة)"});if(overlapCheck(c.date,c.start,c.end)){toast("لا يمكن التكرار: النسخة تتداخل مع مهمة أخرى في نفس الوقت","warn")}else{S.tasks.push(c);save();toast("تم تكرار المهمة");render()}}
+ if(act==="edit")openTaskForm(t);
+ if(act==="open-day"){selectedDate=t.date;go("day")}
+});
+
+/* ---- Task form ---- */
+let weekOffset=0, selectedDate=todayKey(), calCursor=new Date(); calCursor.setDate(1);
+function fillCatSelects(){const opts=S.categories.map(c=>'<option value="'+c.id+'">'+c.icon+" "+esc(c.name)+"</option>").join("");$("#tfCat").innerHTML=opts;$("#fCat").innerHTML='<option value="">كل التصنيفات</option>'+opts}
+function openTaskForm(t,datePreset){$("#taskErr").classList.remove("on");const f=$("#taskForm");f.reset();
+ $("#tfMoveDay").innerHTML='<option value="">— نفس اليوم —</option>'+WEEK_ORDER.map(d=>'<option value="'+d+'">'+DAY_NAMES[d]+"</option>").join("");
+ if(t){$("#taskModalTitle").textContent="تعديل المهمة";$("#tfId").value=t.id;$("#tfTitle").value=t.title;$("#tfDesc").value=t.desc||"";$("#tfDate").value=t.date;$("#tfCat").value=t.catId;$("#tfStart").value=t.start;$("#tfEnd").value=t.end;$("#tfPri").value=t.priority;$("#tfBreak").value=t.breakMin||0;$("#tfStatus").value=t.status;$("#tfImportant").checked=!!t.important;$("#tfPostponed").checked=!!t.postponed}
+ else{$("#taskModalTitle").textContent="مهمة جديدة";$("#tfId").value="";$("#tfDate").value=datePreset||selectedDate||todayKey();$("#tfStart").value="09:00";$("#tfEnd").value="10:00";$("#tfBreak").value=10}
+ openModal("taskModal");updatePrayerWarn()}
+$("#quickAdd").onclick=()=>openTaskForm(null,todayKey());
+$("#dayAddTask").onclick=()=>openTaskForm(null,selectedDate);
+/* تنبيه غير حاجب داخل نموذج المهمة: التداخل مع وقت الصلاة مسموح، والتذكير ييجي وقت الأذان */
+function updatePrayerWarn(){const box=$("#taskPrayerWarn");if(!box)return;let date=$("#tfDate").value;const start=$("#tfStart").value,end=$("#tfEnd").value;
+ if(!date||!start||!end||mins(end)<=mins(start)){box.classList.remove("on");box.textContent="";return}
+ const mv=$("#tfMoveDay").value;if(mv!==""){const d=parseKey(date);const diff=(+mv-d.getDay()+7)%7;d.setDate(d.getDate()+diff);date=dkey(d)}
+ const pc=prayerConflict(date,start,end);
+ if(pc){box.textContent="🕌 تنبيه: هذا الوقت يتداخل مع صلاة "+pc.name+" ("+fmtT(prayerToday.timings[pc.key])+") — عادي، تقدري تحفظي المهمة زي ما هي، والتطبيق هيفكّرك وقت الأذان عشان تسيبي اللي في إيدك وتصلّي.";box.classList.add("on")}
+ else{box.classList.remove("on");box.textContent=""}}
+["tfDate","tfStart","tfEnd","tfMoveDay"].forEach(id=>{const el=$("#"+id);if(el){el.addEventListener("input",updatePrayerWarn);el.addEventListener("change",updatePrayerWarn)}});
+$("#taskForm").addEventListener("submit",e=>{e.preventDefault();const err=$("#taskErr");const show=m=>{err.textContent=m;err.classList.add("on")};
+ const id=$("#tfId").value;let date=$("#tfDate").value;const start=$("#tfStart").value,end=$("#tfEnd").value;const title=$("#tfTitle").value.trim();
+ if(!title)return show("من فضلك اكتبي عنوان المهمة.");
+ if(!date||!start||!end)return show("التاريخ ووقتا البداية والنهاية مطلوبة.");
+ if(mins(end)<=mins(start))return show("وقت النهاية يجب أن يكون بعد وقت البداية.");
+ const mv=$("#tfMoveDay").value;if(mv!==""){const d=parseKey(date);const diff=(+mv-d.getDay()+7)%7;d.setDate(d.getDate()+diff);date=dkey(d)}
+ const ov=overlapCheck(date,start,end,id||undefined);if(ov)return show("⚠️ تداخل في المواعيد: هذه المهمة تتعارض مع «"+ov.title+"» ("+fmtT(ov.start)+" – "+fmtT(ov.end)+"). عدّلي الوقت أو اليوم.");
+ const pc=prayerConflict(date,start,end); // التداخل مع وقت الصلاة مسموح — تنبيه فقط بعد الحفظ، لا يمنع الحفظ أبدًا
+ const data={title,desc:$("#tfDesc").value.trim(),date,catId:$("#tfCat").value,start,end,priority:$("#tfPri").value,breakMin:Math.max(0,+$("#tfBreak").value||0),status:$("#tfStatus").value,important:$("#tfImportant").checked,postponed:$("#tfPostponed").checked};
+ if(id){Object.assign(S.tasks.find(t=>t.id===id),data);toast("تم حفظ تعديلات المهمة ✓")}else{S.tasks.push(Object.assign({id:uid()},data));toast("تمت إضافة المهمة بنجاح 🌸")}
+ save();closeModal("taskModal");selectedDate=date;render();
+ if(pc)setTimeout(()=>toast("🕌 اتحفظت عادي — بس خدي بالك: المهمة دي بتعدّي على وقت صلاة "+pc.name+" ("+fmtT(prayerToday.timings[pc.key])+"). التطبيق هيفكّرك وقت الأذان عشان تسيبي اللي في إيدك وتصلّي.","warn"),350)});
+
+
+/* ================= Dashboard render ================= */
+function renderDashboard(){
+ const now=new Date(),tk=todayKey(),st=dayStats(tk);
+ $("#welcomeMsg").textContent="أهلاً بك"+(S.settings.name?" يا "+S.settings.name:"")+" 🌷";
+ $("#todayLine").textContent=DAY_NAMES[now.getDay()]+"، "+now.getDate()+" "+MONTH_NAMES[now.getMonth()]+" "+now.getFullYear()+" — يومك مرتّب وواضح، خذيه خطوة بخطوة.";
+ const q=S.settings.customQuote||pickDaily(QUOTES);
+ $("#dailyQuote").textContent="«"+q+"»";
+ $("#quoteCustomNote").textContent=S.settings.customQuote?"— عبارتك الخاصة":"— عبارة اليوم";
+ $("#stTotal").textContent=st.total;$("#stDone").textContent=st.done;$("#stLeft").textContent=st.left;
+ $("#stHours").textContent=(st.work/60).toFixed(st.work%60?1:0)+" س";
+ $("#stBreak").textContent=durText(st.brk);
+ $("#stPctText").textContent="نسبة إنجاز اليوم: "+st.pct+"%";
+ $("#dayProgress").style.width=st.pct+"%";
+ $("#ringPct").textContent=st.pct+"%";
+ $("#ringFg").style.strokeDashoffset=(326.7*(1-st.pct/100)).toFixed(1);
+ // week strip
+ const ws=weekStartOf(now);let strip="";
+ for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d),s=dayStats(k);const isT=k===tk,isR=d.getDay()===S.settings.restDay;
+  strip+='<div class="day-chip '+(isT?"today":"")+(isR?" rest":"")+'" data-day="'+k+'"><div class="dn">'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+'</div><div class="dd">'+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+'</div><div class="cnt">'+(s.total?s.done+"/"+s.total+" مهمة":"لا مهام")+'</div><div class="progress" style="margin-top:6px"><i style="width:'+s.pct+'%"></i></div><div class="tiny muted">'+s.pct+'%</div></div>'}
+ $("#weekStrip").innerHTML=strip;
+ $$("#weekStrip .day-chip").forEach(ch=>ch.onclick=()=>{selectedDate=ch.dataset.day;go("day")});
+ // today tasks
+ const ts=tasksOn(tk);
+ $("#todayTasks").innerHTML=ts.length?ts.map(t=>taskCard(t)).join(""):'<div class="card empty"><div class="big-ic">🌸</div>لا توجد مهام اليوم بعد.<br><span class="small">'+pickDaily(QUOTES,3)+'</span><br><button class="btn primary" style="margin-top:12px" onclick="document.getElementById(\'quickAdd\').click()">＋ أضيفي أول مهمة</button></div>';
+ // special lists
+ const imp=S.tasks.filter(t=>t.important&&t.status!=="done").sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));
+ const post=S.tasks.filter(t=>t.postponed&&t.status!=="done");
+ let html="";
+ if(imp.length)html+='<div class="tiny" style="font-weight:800">⭐ مهام مهمة قادمة</div>'+imp.slice(0,4).map(t=>taskCard(t,true)).join("");
+ if(post.length)html+='<div class="tiny" style="font-weight:800;margin-top:6px">⏳ مهام مؤجّلة بانتظار إعادة جدولتها</div>'+post.slice(0,4).map(t=>taskCard(t,true)).join("");
+ $("#specialLists").innerHTML=html||'<div class="card empty"><div class="big-ic">⭐</div>لا مهام مهمة أو مؤجّلة حاليًا.<br><span class="small">علّمي أي مهمة بـ ⭐ أو ⏳ من نافذة التعديل لتظهر هنا.</span></div>';
+ // notes
+ const noteEl=$("#dailyNote");if(document.activeElement!==noteEl)noteEl.value=S.notes[tk]||"";
+ // goals
+ renderGoals();
+}
+let noteTimer=null;
+$("#dailyNote").addEventListener("input",e=>{clearTimeout(noteTimer);noteTimer=setTimeout(()=>{S.notes[todayKey()]=e.target.value;save();$("#noteSavedAt").textContent="تم الحفظ تلقائيًا ✓ "+new Date().toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"})},500)});
+function weekKeyOf(d){return dkey(weekStartOf(d))}
+function renderGoals(){const wk=weekKeyOf(new Date());const gs=S.goals.filter(g=>g.week===wk);
+ $("#goalsList").innerHTML=gs.length?gs.map(g=>'<div class="goal-row"><input type="checkbox" data-goal="'+g.id+'" '+(g.done?"checked":"")+' style="width:19px;height:19px;accent-color:var(--sage)"><span style="flex:1;'+(g.done?"text-decoration:line-through;color:var(--ink2)":"")+'">'+esc(g.text)+'</span><button class="mini-btn" data-goal-del="'+g.id+'">🗑️</button></div>').join(""):'<div class="muted small">لا أهداف لهذا الأسبوع بعد — ضعي هدفًا واحدًا واضحًا يكفي 🌿</div>';
+ $$("#goalsList [data-goal]").forEach(c=>c.onchange=()=>{const g=S.goals.find(x=>x.id===c.dataset.goal);g.done=c.checked;save();renderGoals();if(c.checked)toast("هدف أُنجز! 🎯 "+CHEERS[1])});
+ $$("#goalsList [data-goal-del]").forEach(b=>b.onclick=()=>{S.goals=S.goals.filter(x=>x.id!==b.dataset.goalDel);save();renderGoals()})}
+function addGoal(){const v=$("#goalInput").value.trim();if(!v)return;S.goals.push({id:uid(),text:v,done:false,week:weekKeyOf(new Date())});$("#goalInput").value="";save();renderGoals();toast("أُضيف الهدف 🎯")}
+$("#goalAdd").onclick=addGoal;$("#goalInput").addEventListener("keydown",e=>{if(e.key==="Enter")addGoal()});
+
+/* ================= Week render ================= */
+function renderWeek(){
+ const ws=addDays(weekStartOf(new Date()),weekOffset*7),we=addDays(ws,6);
+ $("#weekRange").textContent="من "+DAY_NAMES[ws.getDay()]+" "+ws.getDate()+" "+MONTH_NAMES[ws.getMonth()]+" إلى "+DAY_NAMES[we.getDay()]+" "+we.getDate()+" "+MONTH_NAMES[we.getMonth()]+" "+we.getFullYear();
+ const q=($("#searchInput").value||"").trim(),fc=$("#fCat").value,fp=$("#fPri").value,fs=$("#fStatus").value;
+ const match=t=>(!q||t.title.includes(q)||(t.desc||"").includes(q))&&(!fc||t.catId===fc)&&(!fp||t.priority===fp)&&(!fs||t.status===fs);
+ let html="";
+ for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d);const ts=tasksOn(k).filter(match);const isR=d.getDay()===S.settings.restDay,isT=k===todayKey();
+  html+='<div class="wday '+(isT?"today":"")+(isR?" rest":"")+'"><h3><span>'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+'</span><span class="tiny muted">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
+  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700">يوم راحة — أنت تستحقين هذا التوقف 🤍</div>':"")
+  +(ts.length?ts.map(t=>taskCard(t,true)).join(""):'<div class="tiny muted" style="padding:8px 2px">لا مهام مطابقة</div>')
+  +'<button class="btn sm soft" style="width:100%;margin-top:9px" data-add-day="'+k+'">＋ إضافة</button></div>'}
+ $("#weekBoard").innerHTML=html;
+ $$("#weekBoard [data-add-day]").forEach(b=>b.onclick=()=>openTaskForm(null,b.dataset.addDay));
+}
+$("#weekPrev").onclick=()=>{weekOffset--;renderWeek()};$("#weekNext").onclick=()=>{weekOffset++;renderWeek()};$("#weekNow").onclick=()=>{weekOffset=0;renderWeek()};
+["searchInput","fCat","fPri","fStatus"].forEach(id=>$("#"+id).addEventListener("input",renderWeek));
+$("#copyPrevWeek").onclick=()=>{const ws=addDays(weekStartOf(new Date()),weekOffset*7);const wk=dkey(ws);
+ if(S.copiedWeeks[wk])return toast("تم نسخ الأسبوع الماضي إلى هذا الأسبوع من قبل — لن نكرر المهام مرتين","warn");
+ const prev=addDays(ws,-7);let n=0,skipped=0;
+ for(let i=0;i<7;i++){const from=dkey(addDays(prev,i)),to=dkey(addDays(ws,i));tasksOn(from).forEach(t=>{if(overlapCheck(to,t.start,t.end)){skipped++;return}S.tasks.push(Object.assign({},t,{id:uid(),date:to,status:"todo"}));n++})}
+ S.copiedWeeks[wk]=true;save();renderWeek();toast("تم نسخ "+n+" مهمة من الأسبوع الماضي"+(skipped?" (تخطّينا "+skipped+" لتداخل مواعيدها)":"")+" ⧉")};
+
+/* ================= Day render ================= */
+function renderDay(){
+ const d=parseKey(selectedDate),isRest=d.getDay()===S.settings.restDay,isToday=selectedDate===todayKey();
+ $("#dayPicker").value=selectedDate;
+ $("#restDayBox").innerHTML=isRest?'<div class="rest-hero" style="margin-bottom:16px"><div class="big-ic">🌿</div><h2 style="font-size:1.4rem">اليوم يوم راحتك</h2><p style="margin:6px 0 0">أنت تستحقين هذا التوقف. استمتعي بيومك! 🤍<br><span class="small muted">'+pickDaily(PRAYER_QUOTES,2)+" — "+pickDaily(QUOTES,5)+'</span></p></div>':"";
+ const ts=tasksOn(selectedDate);
+ let items=[];
+ ts.forEach(t=>items.push({m:mins(t.start),html:tlTask(t)}));
+ if(prayerToday&&prayerToday.date===selectedDate)PRAYERS.forEach(p=>{const pt=prayerToday.timings[p.key];if(pt)items.push({m:mins(pt),html:prayerMarker(p,pt)})});
+ items.sort((a,b)=>a.m-b.m);
+ $("#dayTimeline").innerHTML=items.length?items.map(i=>i.html).join(""):'<div class="empty"><div class="big-ic">🗓️</div>لا مهام في هذا اليوم بعد.<br><span class="small">'+pickDaily(QUOTES,7)+'</span></div>';
+ renderCare();
+}
+function tlTask(t){const c=catById(t.catId);let h='<div class="tl-item"><div class="tl-time">'+fmtT(t.start)+'</div><span class="tl-dot" style="background:'+c.color+'"></span><div class="tl-body">'+taskCard(t)+'</div></div>';
+ if(+t.breakMin>0)h+='<div class="tl-break" style="margin-inline-start:66px">☕ استراحة '+t.breakMin+' دقيقة بعد هذه المهمة</div>';return h}
+function prayerMarker(p,pt){const done=S.prayerLog[selectedDate]&&S.prayerLog[selectedDate][p.key];return '<div class="tl-item"><div class="tl-time">'+fmtT(pt)+'</div><span class="tl-dot" style="background:var(--sky)"></span><div class="tl-body"><div class="prayer-marker"><span style="font-size:1.15rem">🕌</span><span style="flex:1"><strong>صلاة '+p.name+'</strong> — '+fmtT(pt)+(done?' · <span class="badge done">تمت ✓</span>':'')+'</span>'+(done?"":'<button class="btn sm sage" data-prayed="'+p.key+'">صليت</button>')+'</div></div></div>'}
+function renderCare(){const log=S.selfcare[selectedDate]||{};$("#careList").innerHTML=CARE_ITEMS.map((it,i)=>'<label class="care-item '+(log[i]?"done":"")+'"><input type="checkbox" data-care="'+i+'" '+(log[i]?"checked":"")+'><span>'+it+'</span></label>').join("");
+ $$("#careList [data-care]").forEach(c=>c.onchange=()=>{if(!S.selfcare[selectedDate])S.selfcare[selectedDate]={};S.selfcare[selectedDate][c.dataset.care]=c.checked;save();renderCare();if(c.checked)toast("عناية جميلة بنفسك 💆‍♀️ أحسنتِ")})}
+$("#dayPrev").onclick=()=>{selectedDate=dkey(addDays(parseKey(selectedDate),-1));renderDay()};
+$("#dayNext").onclick=()=>{selectedDate=dkey(addDays(parseKey(selectedDate),1));renderDay()};
+$("#dayPicker").onchange=e=>{if(e.target.value){selectedDate=e.target.value;renderDay()}};
+$("#dashGotoWeek").onclick=()=>go("week");
+$("#prayerGotoSettings").onclick=()=>go("settings");
+
+/* ================= Calendar render ================= */
+function renderCalendar(){
+ const y=calCursor.getFullYear(),m=calCursor.getMonth();
+ $("#calTitle").textContent=MONTH_NAMES[m]+" "+y;
+ $("#calDow").innerHTML=WEEK_ORDER.map(d=>'<div class="cal-dow">'+DAY_NAMES[d]+"</div>").join("");
+ const first=new Date(y,m,1);const start=weekStartOf(first);let html="";
+ for(let i=0;i<42;i++){const d=addDays(start,i),k=dkey(d);const ts=tasksOn(k);const inM=d.getMonth()===m;
+  html+='<div class="cal-cell '+(inM?"":"dim")+(k===todayKey()?" today":"")+(d.getDay()===S.settings.restDay?" rest":"")+'" data-cal="'+k+'"><div class="num">'+d.getDate()+(d.getDay()===S.settings.restDay?" 🌿":"")+'</div>'+(ts.length?'<div class="cc">'+ts.filter(t=>t.status==="done").length+"/"+ts.length+' مهام</div><div class="dots">'+ts.slice(0,6).map(t=>'<i style="background:'+catById(t.catId).color+'"></i>').join("")+"</div>":'<div class="cc">—</div>')+"</div>"}
+ $("#calGrid").innerHTML=html;
+ $$("#calGrid [data-cal]").forEach(c=>c.onclick=()=>{selectedDate=c.dataset.cal;renderCalDetail();selectedDate=c.dataset.cal});
+ renderCalDetail();
+}
+function renderCalDetail(){const d=parseKey(selectedDate);const ts=tasksOn(selectedDate);
+ $("#calDayDetail").innerHTML='<div class="card" style="margin-top:16px"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><strong style="font-size:1.05rem">'+DAY_NAMES[d.getDay()]+" "+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+" "+d.getFullYear()+'</strong><span class="sp" style="margin-inline-start:auto;display:flex;gap:8px"><button class="btn sm" id="calGotoDay">فتح الجدول اليومي</button><button class="btn sm primary" id="calAdd">＋ مهمة في هذا اليوم</button></span></div><div class="grid" style="gap:10px;margin-top:12px">'+(ts.length?ts.map(t=>taskCard(t,true)).join(""):'<div class="muted small">لا مهام في هذا اليوم.</div>')+"</div></div>";
+ $("#calGotoDay").onclick=()=>go("day");$("#calAdd").onclick=()=>openTaskForm(null,selectedDate)}
+$("#calPrev").onclick=()=>{calCursor.setMonth(calCursor.getMonth()-1);renderCalendar()};
+$("#calNext").onclick=()=>{calCursor.setMonth(calCursor.getMonth()+1);renderCalendar()};
+
+/* ================= Stats render ================= */
+function renderStats(){
+ const ws=weekStartOf(new Date());let done=0,pend=0,best={name:"—",n:-1};const perDay=[];
+ let workMin=0,brkMin=0;
+ for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d),s=dayStats(k);done+=s.done;pend+=s.left;workMin+=s.work;brkMin+=s.brk;perDay.push({name:DAY_NAMES[d.getDay()],n:s.done,pct:s.pct});if(s.done>best.n)best={name:DAY_NAMES[d.getDay()],n:s.done}}
+ const total=done+pend;
+ $("#stWeekPct").textContent=(total?Math.round(done/total*100):0)+"%";
+ $("#stWeekDone").textContent=done;$("#stWeekPend").textContent=pend;
+ $("#stBestDay").textContent=best.n>0?best.name:"—";
+ const pomoSessions=Object.values(S.pomoLog).reduce((s,v)=>s+(v.sessions||0),0);
+ const pomoFocusMin=Object.values(S.pomoLog).reduce((s,v)=>s+(v.focusMin||0),0);
+ const maxD=Math.max(1,...perDay.map(p=>p.n));
+ $("#trendChart").innerHTML=perDay.map(p=>'<div class="bar-row"><span class="lbl">'+p.name+'</span><div class="progress" style="flex:1"><i style="width:'+Math.round(p.n/maxD*100)+'%"></i></div><span class="val">'+p.n+' ✓</span></div>').join("")+'<div class="tiny muted">نسبة إتمام كل يوم: '+perDay.map(p=>p.name+" "+p.pct+"%").join(" · ")+"</div>";
+ const tot=Math.max(1,workMin+brkMin);
+ $("#barFocus").style.width=Math.round(workMin/tot*100)+"%";$("#valFocus").textContent=(workMin/60).toFixed(1)+" س";
+ $("#barBreak").style.width=Math.round(brkMin/tot*100)+"%";$("#valBreak").textContent=(brkMin/60).toFixed(1)+" س";
+ $("#barPomo").style.width=Math.min(100,pomoSessions*10)+"%";$("#valPomo").textContent=pomoSessions+" جلسة";
+ $("#statsNote").textContent="إجمالي ساعات التركيز المخططة هذا الأسبوع: "+(workMin/60).toFixed(1)+" س · الراحة: "+(brkMin/60).toFixed(1)+" س · دقائق تركيز بالمؤقّت (الكل): "+pomoFocusMin+" د. التوازن الصحي يعني راحة مخططة لا تقل أهمية عن العمل 🌿";
+ // prayer week
+ let ph="";let pDone=0,pElapsed=0;
+ for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d);const log=S.prayerLog[k]||{};const c=PRAYERS.filter(p=>log[p.key]).length;pDone+=c;if(k<=todayKey())pElapsed+=5;
+  ph+='<div class="bar-row"><span class="lbl">'+DAY_NAMES[d.getDay()]+'</span><div class="progress" style="flex:1"><i style="width:'+(c/5*100)+'%;background:var(--sky)"></i></div><span class="val">'+c+'/5</span></div>'}
+ $("#prayerWeekStats").innerHTML=ph+'<div class="tiny muted">صلّيتِ '+pDone+" من "+pElapsed+" صلاة حان وقتها هذا الأسبوع حتى الآن 🤍</div>";
+}
+
+
+/* ================= Prayer module ================= */
+const PRAYERS=[{key:"Fajr",name:"الفجر",icon:"🌅"},{key:"Dhuhr",name:"الظهر",icon:"☀️"},{key:"Asr",name:"العصر",icon:"🌤️"},{key:"Maghrib",name:"المغرب",icon:"🌇"},{key:"Isha",name:"العشاء",icon:"🌙"}];
+const CITY_PRESETS=[["Minya","المنيا",28.1099,30.7503,"Africa/Cairo"],["Cairo","القاهرة",30.0444,31.2357,"Africa/Cairo"],["Giza","الجيزة",30.0131,31.2089,"Africa/Cairo"],["Alexandria","الإسكندرية",31.2001,29.9187,"Africa/Cairo"],["Asyut","أسيوط",27.1809,31.1837,"Africa/Cairo"],["Sohag","سوهاج",26.5570,31.6948,"Africa/Cairo"],["Qena","قنا",26.1551,32.7160,"Africa/Cairo"],["Luxor","الأقصر",25.6872,32.6396,"Africa/Cairo"],["Aswan","أسوان",24.0889,32.8998,"Africa/Cairo"],["Mansoura","المنصورة",31.0409,31.3785,"Africa/Cairo"],["Tanta","طنطا",30.7865,31.0004,"Africa/Cairo"],["Zagazig","الزقازيق",30.5877,31.5020,"Africa/Cairo"],["Ismailia","الإسماعيلية",30.5965,32.2715,"Africa/Cairo"],["Faiyum","الفيوم",29.3084,30.8428,"Africa/Cairo"],["Beni Suef","بني سويف",29.0661,31.0994,"Africa/Cairo"],["Makkah","مكة المكرمة",21.3891,39.8579,"Asia/Riyadh"],["Madinah","المدينة المنورة",24.5247,39.5692,"Asia/Riyadh"],["Riyadh","الرياض",24.7136,46.6753,"Asia/Riyadh"],["Dubai","دبي",25.2048,55.2708,"Asia/Dubai"],["Kuwait City","الكويت",29.3759,47.9774,"Asia/Kuwait"],["Doha","الدوحة",25.2854,51.5310,"Asia/Qatar"],["Amman","عمّان",31.9454,35.9284,"Asia/Amman"],["Jerusalem","القدس",31.7683,35.2137,"Asia/Jerusalem"]];
+let prayerToday=null; // {date, timings:{Fajr:'HH:MM',...}, hijri, stale, source:'api'|'calc', cityLabel}
+let prayerInFlight=false,lastPrayerError="";
+const cleanTime=s=>{if(!s)return null;const m=String(s).match(/(\d{1,2}):(\d{2})/);return m?pad(+m[1])+":"+m[2]:null};
+function prayerCacheKey(){const p=S.prayer;return p.geo?("geo:"+p.geo.lat.toFixed(3)+","+p.geo.lng.toFixed(3)):("city:"+(p.customCity||p.city)+","+(p.country||""))+"|m"+p.method+"|s"+p.school}
+function presetFor(name){return CITY_PRESETS.find(c=>c[0]===name)||null}
+function prayerCityLabel(){const p=S.prayer;if(p.geo)return"موقعك الحالي";const pr=presetFor(p.customCity||p.city);return pr?pr[1]:(p.customCity||p.city)}
+async function fetchJSON(url,ms){const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),ms||12000);try{const r=await fetch(url,{signal:ctl.signal});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json()}catch(e){if(e&&e.name==="AbortError")throw new Error("انتهت مهلة الاتصال بمصدر المواقيت");throw e}finally{clearTimeout(to)}}
+function parseAladhan(j,dateStr){if(!j.data||!j.data.timings)throw new Error("بيانات غير مكتملة من المصدر");const t=j.data.timings;const timings={};PRAYERS.forEach(pr=>timings[pr.key]=cleanTime(t[pr.key]));timings.Sunrise=cleanTime(t.Sunrise);if(PRAYERS.some(pr=>!timings[pr.key]))throw new Error("بيانات غير مكتملة من المصدر");const hijri=j.data.date&&j.data.date.hijri?(j.data.date.hijri.day+" "+j.data.date.hijri.month.ar+" "+j.data.date.hijri.year+"هـ"):"";return{date:dateStr,timings,hijri,stale:false,source:"api",cityLabel:prayerCityLabel()}}
+async function fetchPrayer(dateStr){
+ const p=S.prayer;const [Y,M,D]=dateStr.split("-");
+ const urls=[];
+ if(p.geo){urls.push("https://api.aladhan.com/v1/timings/"+Math.floor(parseKey(dateStr).getTime()/1000)+"?latitude="+p.geo.lat+"&longitude="+p.geo.lng+"&method="+p.method+"&school="+p.school)}
+ else{
+  urls.push("https://api.aladhan.com/v1/timingsByCity/"+D+"-"+M+"-"+Y+"?city="+encodeURIComponent(p.customCity||p.city)+"&country="+encodeURIComponent(p.country||"Egypt")+"&method="+p.method+"&school="+p.school);
+  urls.push("https://api.aladhan.com/v1/timingsByAddress/"+D+"-"+M+"-"+Y+"?address="+encodeURIComponent((p.customCity||p.city)+","+(p.country||"Egypt"))+"&method="+p.method+"&school="+p.school);
+  const pr=presetFor(p.customCity||p.city);
+  if(pr)urls.push("https://api.aladhan.com/v1/timings/"+Math.floor(parseKey(dateStr).getTime()/1000)+"?latitude="+pr[2]+"&longitude="+pr[3]+"&method="+p.method+"&school="+p.school);
+ }
+ let lastErr=null;
+ for(let round=0;round<2;round++){
+  for(const u of urls){try{const out=parseAladhan(await fetchJSON(u),dateStr);S.prayerCache={key:prayerCacheKey(),data:out};save();return out}catch(e){lastErr=e}}
+  if(round===0)await new Promise(r=>setTimeout(r,1500));
+ }
+ const calc=computeLocalTimes(dateStr);
+ if(calc)return calc;
+ throw lastErr||new Error("تعذّر الاتصال بمصدر المواقيت");
+}
+/* --- Offline fallback: standard solar (PrayTimes) calculation, runs fully on-device --- */
+const PRAYER_METHOD_PARAMS={5:[19.5,17.5],3:[18,17],4:[18.5,"90m"],2:[15,15],8:[19.5,"90m"],9:[18,17.5],10:[18,"90m"],11:[20,18],13:[18,17]};
+const D2R=Math.PI/180,R2D=180/Math.PI;
+const dsin=d=>Math.sin(d*D2R),dcos=d=>Math.cos(d*D2R),dtan=d=>Math.tan(d*D2R);
+const darcsin=x=>Math.asin(x)*R2D,darccos=x=>Math.acos(x)*R2D,darctan2=(y,x)=>Math.atan2(y,x)*R2D,darccot=x=>Math.atan(1/x)*R2D;
+function fixAngle(a){a=a-360*Math.floor(a/360);return a<0?a+360:a}
+function fixHour(a){a=a-24*Math.floor(a/24);return a<0?a+24:a}
+function julianDay(y,m,d){if(m<=2){y-=1;m+=12}const A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+B-1524.5}
+function sunPos(jd){const Dd=jd-2451545.0;const g=fixAngle(357.529+0.98560028*Dd);const q=fixAngle(280.459+0.98564736*Dd);const L=fixAngle(q+1.915*dsin(g)+0.020*dsin(2*g));const e=23.439-0.00000036*Dd;const RA=fixHour(darctan2(dcos(e)*dsin(L),dcos(L))/15);return{decl:darcsin(dsin(e)*dsin(L)),eqt:q/15-RA}}
+function tzOffsetHours(tz,date){try{const dtf=new Intl.DateTimeFormat("en-US",{timeZone:tz,hour12:false,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"});const parts={};dtf.formatToParts(date).forEach(pt=>parts[pt.type]=pt.value);const asUTC=Date.UTC(+parts.year,+parts.month-1,+parts.day,(+parts.hour)%24,+parts.minute,+parts.second);return(asUTC-Math.floor(date.getTime()/1000)*1000)/3600000}catch(e){return -date.getTimezoneOffset()/60}}
+function computeLocalTimes(dateStr){
+ const p=S.prayer;let lat=null,lng=null,tzName=null;
+ if(p.geo){lat=p.geo.lat;lng=p.geo.lng}
+ else{const pr=presetFor(p.customCity||p.city);if(pr){lat=pr[2];lng=pr[3];tzName=pr[4]}}
+ if(lat===null||lng===null)return null;
+ const date=parseKey(dateStr);const tzH=tzName?tzOffsetHours(tzName,date):-date.getTimezoneOffset()/60;
+ const jd=julianDay(date.getFullYear(),date.getMonth()+1,date.getDate())-lng/(15*24);
+ const mp=PRAYER_METHOD_PARAMS[p.method]||PRAYER_METHOD_PARAMS[5];
+ const asrFactor=p.school===1?2:1;
+ const midDay=t=>fixHour(12-sunPos(jd+t).eqt);
+ const angleTime=(angle,t,ccw)=>{const decl=sunPos(jd+t).decl;const noon=midDay(t);const cosH=(-dsin(angle)-dsin(decl)*dsin(lat))/(dcos(decl)*dcos(lat));if(cosH<-1||cosH>1)return NaN;const H=darccos(cosH)/15;return ccw?noon-H:noon+H};
+ const raw={Fajr:angleTime(mp[0],0,true),Sunrise:angleTime(0.833,0.25,true),Dhuhr:midDay(0.5),Maghrib:angleTime(0.833,0.75,false)};
+ raw.Asr=angleTime(-darccot(asrFactor+dtan(Math.abs(lat-sunPos(jd+0.5).decl))),0.5,false);
+ raw.Isha=(typeof mp[1]==="string")?raw.Maghrib+parseInt(mp[1])/60:angleTime(mp[1],0.75,false);
+ const adj=tzH-lng/15;const fmt=v=>{if(typeof v!=="number"||isNaN(v))return null;const tv=fixHour(v+adj);let hh=Math.floor(tv),mm=Math.round((tv-hh)*60);if(mm===60){mm=0;hh=(hh+1)%24}return pad(hh)+":"+pad(mm)};
+ const timings={};PRAYERS.forEach(x=>timings[x.key]=fmt(raw[x.key]));timings.Sunrise=fmt(raw.Sunrise);
+ if(PRAYERS.some(x=>!timings[x.key]))return null;
+ return{date:dateStr,timings,hijri:"",stale:false,source:"calc",cityLabel:prayerCityLabel()};
+}
+async function loadPrayer(force,silent){
+ const tk=todayKey();
+ if(prayerInFlight)return;
+ if(!force&&S.prayerCache&&S.prayerCache.key===prayerCacheKey()&&S.prayerCache.data.date===tk){prayerToday=S.prayerCache.data;renderPrayer();return}
+ if(!force&&prayerToday&&prayerToday.date===tk&&prayerToday.source!=="calc"){renderPrayer();return}
+ prayerInFlight=true;
+ if(!silent){$("#prayerError").style.display="none";if(!prayerToday){$("#prayerLoading").style.display="block";$("#prayerBody").style.display="none"}}
+ try{prayerToday=await fetchPrayer(tk);renderPrayer()}
+ catch(e){
+   lastPrayerError=(e&&e.message)?e.message:"خطأ في الاتصال";
+   if(S.prayerCache&&S.prayerCache.data){prayerToday=Object.assign({},S.prayerCache.data,{stale:true});renderPrayer();if(!silent)toast("لا يوجد اتصال — تُعرض آخر مواقيت محفوظة","warn")}
+   else if(!prayerToday||prayerToday.date!==tk){
+     prayerToday=null;
+     $("#prayerLoading").style.display="none";$("#prayerBody").style.display="none";$("#prayerError").style.display="block";
+     $("#prayerErrorDetail").textContent="سبب تقني: "+lastPrayerError+" — ستتم إعادة المحاولة تلقائيًا كل دقيقة، وتُحدَّث المواقيت فور عودة الاتصال.";
+   }
+ }
+ finally{prayerInFlight=false}
+}
+function nextPrayerInfo(){
+ if(!prayerToday)return null;const now=new Date();const nowMin=now.getHours()*60+now.getMinutes();const tk=todayKey();
+ for(const p of PRAYERS){const t=prayerToday.timings[p.key];if(!t)continue;const pm=mins(t);if(prayerToday.date===tk&&pm>nowMin){const target=new Date(now);target.setHours(Math.floor(pm/60),pm%60,0,0);return{prayer:p,target}}}
+ const f=prayerToday.timings.Fajr;if(f){const target=parseKey(prayerToday.date===tk?dkey(addDays(new Date(),1)):prayerToday.date);target.setHours(Math.floor(mins(f)/60),mins(f)%60,0,0);return{prayer:PRAYERS[0],target}}
+ return null;
+}
+function prayerStatus(p){
+ const tk=todayKey();const log=S.prayerLog[tk]||{};
+ if(log[p.key])return{cls:"done",txt:"تمت الصلاة ✓"};
+ if(!prayerToday||prayerToday.date!==tk)return{cls:"wait",txt:"لم تُسجَّل"};
+ const now=new Date();const nowMin=now.getHours()*60+now.getMinutes();const pm=mins(prayerToday.timings[p.key]||"99:99");
+ const nx=nextPrayerInfo();
+ if(nowMin>=pm&&nowMin<pm+30)return{cls:"now",txt:"حان وقتها الآن 🔔"};
+ if(nx&&nx.prayer.key===p.key)return{cls:"next",txt:"القادمة ⏭"};
+ if(nowMin>=pm)return{cls:"wait",txt:"لم يتم تسجيلها"};
+ return{cls:"wait",txt:"لم يحن وقتها"};
+}
+function renderPrayer(){
+ if(!prayerToday)return;
+ $("#prayerLoading").style.display="none";$("#prayerError").style.display="none";$("#prayerBody").style.display="block";
+ $("#prayerCityChip").textContent="📍 "+(prayerToday.cityLabel||"المنيا");
+ $("#hijriLine").textContent=prayerToday.hijri?("📅 "+prayerToday.hijri):"";
+ const noteEl=$("#prayerStaleNote");
+ if(prayerToday.source==="calc"){noteEl.style.display="block";noteEl.textContent="📴 تعذّر الاتصال بمصدر المواقيت — هذه مواقيت محسوبة فلكيًا على جهازك لنفس المدينة وطريقة الحساب (قد تختلف بدقيقة أو دقيقتين عن الرسمية)، وسيتم جلب المواقيت الرسمية تلقائيًا عند عودة الاتصال."}
+ else if(prayerToday.stale){noteEl.style.display="block";noteEl.textContent="⚠️ تُعرض آخر مواقيت محفوظة محليًا — قد تحتاج إلى تحديث عند عودة الاتصال."}
+ else noteEl.style.display="none";
+ $("#prayerQuote").textContent="«"+pickDaily(PRAYER_QUOTES)+"»";
+ const nx=nextPrayerInfo();
+ $("#nextPrayerName").textContent=nx?("صلاة "+nx.prayer.name+" — "+fmtT(prayerToday.timings[nx.prayer.key])):"—";
+ const log=S.prayerLog[todayKey()]||{};
+ $("#prayerGrid").innerHTML=PRAYERS.map(p=>{const st=prayerStatus(p);const done=!!log[p.key];
+  return '<div class="prayer-item '+(done?"done":nx&&nx.prayer.key===p.key?"next":"")+'"><div style="font-size:1.3rem">'+p.icon+'</div><div class="pn">صلاة '+p.name+'</div><div class="pt">'+fmtT(prayerToday.timings[p.key]||"")+'</div><span class="badge '+st.cls+'">'+st.txt+'</span>'+(done?'<div class="tiny" style="color:#5c7052;font-weight:700;margin-top:7px">تقبل الله 🤍</div>':'<button class="btn sm sage prayed-btn" data-prayed="'+p.key+'">صليت ✓</button>')+"</div>"}).join("")
+  +'<div class="prayer-item"><div style="font-size:1.3rem">🌄</div><div class="pn">الشروق</div><div class="pt">'+fmtT(prayerToday.timings.Sunrise||"")+'</div><span class="badge wait">معلومة</span></div>';
+ updateCountdown();
+}
+function updateCountdown(){
+ const nx=nextPrayerInfo();if(!nx){$("#prayerCountdown").textContent="--:--:--";return}
+ let diff=Math.max(0,Math.floor((nx.target-new Date())/1000));
+ const h=Math.floor(diff/3600),m=Math.floor(diff%3600/60),s=diff%60;
+ $("#prayerCountdown").textContent=pad(h)+":"+pad(m)+":"+pad(s);
+}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-prayed]");if(!b)return;markPrayed(b.dataset.prayed)});
+function markPrayed(key){const tk=todayKey();if(!S.prayerLog[tk])S.prayerLog[tk]={};S.prayerLog[tk][key]=true;save();const p=PRAYERS.find(x=>x.key===key);toast("تقبل الله صلاة "+(p?p.name:key)+" 🤍 "+CHEERS[4]);renderPrayer();if(currentView==="day")renderDay();if(currentView==="stats")renderStats()}
+$("#prayerRetry").onclick=()=>loadPrayer(true);
+$("#prayerRefresh").onclick=()=>{loadPrayer(true);toast("جارٍ تحديث المواقيت…")};
+$("#prayerHistoryBtn").onclick=()=>{const box=$("#prayerHistory");const open=box.style.display!=="none";box.style.display=open?"none":"block";if(open)return;
+ const days=Object.keys(S.prayerLog).sort().reverse().slice(0,14);
+ box.innerHTML=days.length?days.map(k=>{const d=parseKey(k);const log=S.prayerLog[k];return '<div class="hist-day"><strong>'+DAY_NAMES[d.getDay()]+" "+d.getDate()+" "+MONTH_NAMES[d.getMonth()]+" "+d.getFullYear()+'</strong><div class="hist-prayers">'+PRAYERS.map(p=>'<span class="badge '+(log[p.key]?"done":"wait")+'">'+p.name+(log[p.key]?" ✓":"")+"</span>").join("")+"</div></div>"}).join(""):'<div class="muted small">لا سجل بعد — سجّلي أول صلاة اليوم بالضغط على «صليت» 🌸</div>'};
+$("#prayerAddAllBtn").onclick=()=>{if(!prayerToday)return toast("المواقيت غير متاحة حاليًا","warn");const tk=todayKey();let n=0,skip=0;
+ PRAYERS.forEach(p=>{const t=prayerToday.timings[p.key];if(!t)return;const end=pad(Math.floor((mins(t)+20)/60)%24)+":"+pad((mins(t)+20)%60);
+  if(S.tasks.some(x=>x.date===tk&&x.title==="صلاة "+p.name))return;
+  if(overlapCheck(tk,t,end)){skip++;return}
+  S.tasks.push({id:uid(),title:"صلاة "+p.name,desc:"وقت الصلاة والاستعداد لها",date:tk,catId:"care",start:t,end,breakMin:5,priority:"high",status:"todo",important:true,postponed:false});n++});
+ save();render();toast("أُضيفت "+n+" صلاة إلى جدول اليوم 🕌"+(skip?" (تخطّينا "+skip+" لتداخلها مع مهام موجودة)":""))};
+/* prayer reminders */
+const firedReminders=new Set();
+function checkPrayerReminders(){
+ if(!prayerToday||prayerToday.date!==todayKey()){loadPrayer(false,true);return}
+ const now=new Date();const nowSec=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+ PRAYERS.forEach(p=>{const t=prayerToday.timings[p.key];if(!t)return;const rem=S.prayer.reminders[p.key]||{on:true,offsets:[0]};if(!rem.on)return;
+  (rem.offsets||[0]).forEach(off=>{const target=mins(t)*60-off*60;const key=todayKey()+"-"+p.key+"-"+off;
+   if(Math.abs(nowSec-target)<=25&&!firedReminders.has(key)){firedReminders.add(key);
+    if(off===0){$("#prayerBannerText").textContent="حان الآن وقت صلاة "+p.name+" — سيبي اللي في إيدك، حيّ على الصلاة 🕌";$("#prayerBanner").dataset.prayer=p.key;$("#prayerBanner").classList.add("on");notify("🕌 حان وقت الصلاة","دخل وقت صلاة "+p.name+" ("+fmtT(t)+") — سيبي اللي في إيدك وصلّي")}
+    else notify("⏰ تذكير بالصلاة","صلاة "+p.name+" بعد "+off+" دقيقة ("+fmtT(t)+")")}})});
+ // task start reminders
+ if(S.settings.notifTasks){const nowMin=now.getHours()*60+now.getMinutes();tasksOn(todayKey()).forEach(t=>{if(t.status!=="done"&&mins(t.start)===nowMin){const key="task-"+t.id+"-"+todayKey();if(!firedReminders.has(key)){firedReminders.add(key);notify("📌 بدأت مهمة",t.title+" — "+fmtT(t.start))}}})}
+}
+$("#prayerBannerClose").onclick=()=>$("#prayerBanner").classList.remove("on");
+$("#prayerBannerPrayed").onclick=()=>{const k=$("#prayerBanner").dataset.prayer;if(k)markPrayed(k);$("#prayerBanner").classList.remove("on")};
+setInterval(()=>{if(prayerToday&&currentView==="dashboard")updateCountdown()},1000);
+setInterval(checkPrayerReminders,20000);
+
+/* ================= Timer ================= */
+const timer={mode:"focus",total:S.pomo.focus*60,left:S.pomo.focus*60,running:false,int:null};
+function timerDur(){return S.pomo[timer.mode]*60}
+function renderTimer(){timer.total=timerDur();const m=Math.floor(timer.left/60),s=timer.left%60;$("#timerText").textContent=pad(m)+":"+pad(s);
+ $("#timerFg").style.strokeDashoffset=(703.7*(1-(timer.total?timer.left/timer.total:0))).toFixed(1);
+ $("#timerFg").style.stroke=timer.mode==="focus"?"var(--rose)":"var(--sage)";
+ $("#timerModeLbl").textContent=timer.mode==="focus"?"جلسة تركيز":timer.mode==="short"?"استراحة قصيرة":"استراحة طويلة";
+ const tk=todayKey();$("#timerSessions").textContent="جلسات اليوم: "+((S.pomoLog[tk]||{}).sessions||0);
+ $$("#modeTabs button").forEach(b=>b.classList.toggle("active",b.dataset.mode===timer.mode))}
+function beep(){try{const ctx=new (window.AudioContext||window.webkitAudioContext)();[0,0.25,0.5].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=660+i*110;g.gain.setValueAtTime(0.15,ctx.currentTime+d);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.18)})}catch(e){}}
+function setMode(m){timer.mode=m;timer.left=timerDur();stopTimer();renderTimer()}
+$$("#modeTabs button").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+function stopTimer(){timer.running=false;clearInterval(timer.int);$("#timerStart").textContent="▶ بدء";$("#timerPause").disabled=true}
+function tickTimer(){timer.left--;renderTimer();if(timer.left<=0){stopTimer();beep();const wasFocus=timer.mode==="focus";const tk=todayKey();
+ if(wasFocus){if(!S.pomoLog[tk])S.pomoLog[tk]={sessions:0,focusMin:0};S.pomoLog[tk].sessions++;S.pomoLog[tk].focusMin+=S.pomo.focus;save();
+  $("#timerSuggest").style.display="block";$("#timerSuggest").innerHTML="أحسنتِ! أنهيتِ جلسة تركيز كاملة 🎉 خذي استراحة قصيرة الآن — جسمك وعقلك يستحقانها ☕<br><button class='btn sage' style='margin-top:8px' onclick='document.querySelector(\"[data-mode=short]\").click();document.getElementById(\"timerStart\").click()'>بدء الاستراحة القصيرة</button>";
+  notify("🍅 انتهت جلسة التركيز","وقت الاستراحة! جلسات اليوم: "+S.pomoLog[tk].sessions)}
+ else{$("#timerSuggest").style.display="block";$("#timerSuggest").textContent="انتهت الاستراحة 🌿 جاهزة لجولة تركيز جديدة؟";notify("🌿 انتهت الاستراحة","حان وقت العودة للتركيز بهدوء")}
+ renderTimer()}}
+$("#timerStart").onclick=()=>{if(timer.running)return;timer.running=true;$("#timerStart").textContent="⏳ جارٍ العدّ…";$("#timerPause").disabled=false;$("#timerPause").textContent="⏸ إيقاف مؤقت";timer.int=setInterval(tickTimer,1000)};
+$("#timerPause").onclick=()=>{if(!timer.running)return;if(timer.int){clearInterval(timer.int);timer.int=null;$("#timerPause").textContent="▶ استئناف"}else{timer.int=setInterval(tickTimer,1000);$("#timerPause").textContent="⏸ إيقاف مؤقت"}};
+$("#timerReset").onclick=()=>{stopTimer();timer.left=timerDur();$("#timerSuggest").style.display="none";renderTimer()};
+function fillPomo(){$("#pomoFocus").value=S.pomo.focus;$("#pomoShort").value=S.pomo.short;$("#pomoLong").value=S.pomo.long}
+$("#pomoSave").onclick=()=>{S.pomo.focus=Math.min(180,Math.max(1,+$("#pomoFocus").value||25));S.pomo.short=Math.min(60,Math.max(1,+$("#pomoShort").value||5));S.pomo.long=Math.min(90,Math.max(1,+$("#pomoLong").value||15));save();if(!timer.running){timer.left=timerDur()}renderTimer();$("#pomoSavedMsg").textContent="تم الحفظ ✓";setTimeout(()=>$("#pomoSavedMsg").textContent="",2500)};
+
+/* ================= Categories ================= */
+function renderCats(){$("#catList").innerHTML=S.categories.map(c=>{const n=S.tasks.filter(t=>t.catId===c.id).length;return '<div class="cat-row"><span class="cat-ic" style="background:'+c.color+'22">'+c.icon+'</span><span style="flex:1"><strong>'+esc(c.name)+'</strong> <span class="tiny muted">· '+n+' مهمة</span></span><span class="chip" style="background:'+c.color+'22;color:inherit;border-color:transparent">'+c.color+'</span><button class="mini-btn" data-cat-edit="'+c.id+'">✏️</button><button class="mini-btn" data-cat-del="'+c.id+'">🗑️</button></div>'}).join("");
+ $$("#catList [data-cat-edit]").forEach(b=>b.onclick=()=>openCatForm(S.categories.find(c=>c.id===b.dataset.catEdit)));
+ $$("#catList [data-cat-del]").forEach(b=>b.onclick=()=>{const c=S.categories.find(x=>x.id===b.dataset.catDel);askConfirm("حذف تصنيف «"+c.name+"»؟ ستتحول مهامه إلى تصنيف «أخرى».",()=>{S.tasks.forEach(t=>{if(t.catId===c.id)t.catId="other"});S.categories=S.categories.filter(x=>x.id!==c.id);if(!S.categories.some(x=>x.id==="other"))S.categories.push({id:"other",name:"أخرى",icon:"✨",color:"#9a938a"});save();fillCatSelects();renderCats();render();toast("تم حذف التصنيف")})})}
+function openCatForm(c){$("#catErr").classList.remove("on");$("#catForm").reset();if(c){$("#catModalTitle").textContent="تعديل التصنيف";$("#cfId").value=c.id;$("#cfName").value=c.name;$("#cfIcon").value=c.icon;$("#cfColor").value=c.color}else{$("#catModalTitle").textContent="تصنيف جديد";$("#cfId").value="";$("#cfColor").value="#b98a90"}openModal("catModal")}
+$("#catAdd").onclick=()=>openCatForm(null);
+$("#catForm").addEventListener("submit",e=>{e.preventDefault();const name=$("#cfName").value.trim();if(!name){$("#catErr").textContent="اكتبي اسم التصنيف.";$("#catErr").classList.add("on");return}
+ const data={name,icon:$("#cfIcon").value.trim()||"✨",color:$("#cfColor").value};const id=$("#cfId").value;
+ if(id)Object.assign(S.categories.find(c=>c.id===id),data);else S.categories.push(Object.assign({id:uid()},data));
+ save();closeModal("catModal");fillCatSelects();renderCats();render();toast("تم حفظ التصنيف 🏷️")});
+
+/* ================= Settings ================= */
+function fillSettings(){
+ $("#setName").value=S.settings.name;$("#setTheme").value=S.settings.theme;$("#setRestDay").value=String(S.settings.restDay);$("#setQuote").value=S.settings.customQuote;$("#setNotifTasks").checked=!!S.settings.notifTasks;
+ $("#pCitySel").innerHTML=CITY_PRESETS.map(c=>'<option value="'+c[0]+'">'+c[1]+"</option>").join("");
+ $("#pCitySel").value=CITY_PRESETS.some(c=>c[0]===S.prayer.city)?S.prayer.city:"Minya";
+ $("#pCountry").value=S.prayer.country;$("#pCityCustom").value=S.prayer.customCity||"";$("#pMethod").value=String(S.prayer.method);$("#pSchool").value=String(S.prayer.school);
+ const offsSel=(key,cur)=>[0,10,15].map(o=>'<label style="display:inline-flex;gap:5px;align-items:center;margin-inline-end:10px"><input type="checkbox" data-rem="'+key+'" data-off="'+o+'" '+(cur.includes(o)?"checked":"")+'> '+(o===0?"عند الأذان":"قبلها بـ "+o+" د")+"</label>").join("");
+ $("#pReminderRows").innerHTML=PRAYERS.map(p=>{const r=S.prayer.reminders[p.key]||{on:true,offsets:[0]};return '<div class="switch-row"><div class="grow"><strong>'+p.icon+" صلاة "+p.name+'</strong><div style="margin-top:4px">'+offsSel(p.key,r.offsets||[0])+'</div></div><input type="checkbox" class="sw" data-rem-on="'+p.key+'" '+(r.on?"checked":"")+'></div>'}).join("");
+}
+$("#saveGeneral").onclick=()=>{S.settings.name=$("#setName").value.trim();S.settings.theme=$("#setTheme").value;S.settings.restDay=+$("#setRestDay").value;S.settings.customQuote=$("#setQuote").value.trim();S.settings.notifTasks=$("#setNotifTasks").checked;save();applyTheme();render();toast("تم حفظ الإعدادات العامة ⚙️")};
+$("#savePrayerSettings").onclick=()=>{S.prayer.city=$("#pCitySel").value;S.prayer.country=$("#pCountry").value.trim()||"Egypt";S.prayer.customCity=$("#pCityCustom").value.trim();S.prayer.method=+$("#pMethod").value;S.prayer.school=+$("#pSchool").value;S.prayer.geo=null;
+ PRAYERS.forEach(p=>{const on=$('[data-rem-on="'+p.key+'"]').checked;const offs=$$('[data-rem="'+p.key+'"]').filter(c=>c.checked).map(c=>+c.dataset.off);S.prayer.reminders[p.key]={on,offsets:offs.length?offs:[0]}});
+ save();prayerToday=null;loadPrayer(true);toast("تم حفظ إعدادات الصلاة — جارٍ تحديث المواقيت 🕌")};
+$("#pUseGeo").onclick=()=>{if(!navigator.geolocation)return toast("المتصفح لا يدعم تحديد الموقع","err-t");toast("جارٍ تحديد موقعك…");navigator.geolocation.getCurrentPosition(pos=>{S.prayer.geo={lat:pos.coords.latitude,lng:pos.coords.longitude};save();prayerToday=null;loadPrayer(true);toast("تم ضبط المواقيت حسب موقعك الحالي 📍")},()=>toast("تعذّر الوصول إلى موقعك — تأكدي من منح الإذن","err-t"),{timeout:10000})};
+$("#askNotifPerm").onclick=async()=>{if(!("Notification"in window))return toast("المتصفح لا يدعم إشعارات النظام — ستعمل التنبيهات داخل التطبيق","warn");const r=await Notification.requestPermission();toast(r==="granted"?"تم منح إذن الإشعارات 🔔 شكرًا!":r==="denied"?"تم رفض الإذن — ستظهر التنبيهات داخل التطبيق فقط":"لم يتم الرد على طلب الإذن",r==="granted"?"":"warn")};
+$("#exportData").onclick=()=>{const blob=new Blob([JSON.stringify(S,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="my-daily-planner-backup.json";a.click();URL.revokeObjectURL(a.href);toast("تم تنزيل النسخة الاحتياطية ⬇")};
+$("#importData").addEventListener("change",e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.tasks))throw 0;S=Object.assign(defaultState(),d);save();location.reload()}catch(err){toast("ملف غير صالح — لم يتم الاستيراد","err-t")}};r.readAsText(f)});
+$("#wipeData").onclick=()=>askConfirm("سيتم مسح كل المهام والإعدادات وسجل الصلوات نهائيًا من هذا المتصفح. متأكدة؟",()=>{localStorage.removeItem(LS);location.reload()});
+
+/* ================= Clock & task reminder loop ================= */
+function tickClock(){const n=new Date();let h=n.getHours();const p=h>=12?"مساءً":"صباحًا";$("#clockTime").textContent=(h%12||12)+":"+pad(n.getMinutes());$("#clockSec").textContent=":"+pad(n.getSeconds());$("#clockPeriod").textContent=p+" · "+DAY_NAMES[n.getDay()]}
+setInterval(tickClock,1000);
+
+/* ================= Master render & init ================= */
+function render(){renderDashboard();if(currentView==="week")renderWeek();if(currentView==="day")renderDay();if(currentView==="calendar")renderCalendar();if(currentView==="stats")renderStats();if(currentView==="settings"){renderCats()}renderNotifs()}
+fillCatSelects();fillSettings();fillPomo();renderTimer();render();tickClock();loadPrayer();
+/* Prayer auto-recovery: retry silently when the day rolls over, while showing calculated/stale
+   times, when the connection returns, and when the user comes back to the page. */
+setInterval(()=>{if(todayKey()!==(prayerToday||{}).date)loadPrayer(false,true);else if(prayerToday&&(prayerToday.source==="calc"||prayerToday.stale))loadPrayer(true,true)},45000);
+window.addEventListener("online",()=>{if(!prayerToday||prayerToday.date!==todayKey()||prayerToday.source==="calc"||prayerToday.stale)loadPrayer(true,true)});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&(!prayerToday||prayerToday.date!==todayKey()||prayerToday.source==="calc"))loadPrayer(true,true)});
+</script>
+</body>
+</html>
