@@ -61,6 +61,7 @@ h1,h2,h3{margin:0;line-height:1.4}
 /* ===== Nav ===== */
 .nav{display:flex;gap:6px;overflow-x:auto;padding:10px 2px 4px;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
+@media(max-width:640px){.nav{flex-wrap:wrap;overflow:visible}.nav button{padding:6px 12px;font-size:.86rem}}
 .nav button{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink2);border-radius:999px;padding:7px 16px;font-weight:700;font-size:.92rem;display:flex;gap:7px;align-items:center;transition:.2s}
 .nav button.active{background:var(--rose);border-color:var(--rose);color:#fff;box-shadow:var(--shadow-sm)}
 [data-theme="dark"] .nav button.active{color:#241d20}
@@ -162,16 +163,31 @@ h1,h2,h3{margin:0;line-height:1.4}
 .prayer-marker{display:flex;gap:10px;align-items:center;background:var(--sky-soft);border:1px dashed var(--sky);border-radius:var(--r-md);padding:9px 14px;margin:6px 0;font-size:.9rem}
 /* week board */
 .week-board{display:grid;grid-template-columns:repeat(7,1fr);gap:12px;align-items:start}
-@media(max-width:1100px){.week-board{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){.week-board{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:460px){.week-board{grid-template-columns:1fr}}
+@media(max-width:1240px){.week-board{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:860px){.week-board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.week-board{grid-template-columns:1fr}}
 .wday{background:var(--surface2);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;min-height:120px}
-.wday.today{border-color:var(--rose)}
+.wday.today{border-color:var(--rose);box-shadow:0 0 0 2px var(--rose-soft)}
 .wday.rest{background:var(--sage-soft)}
-.wday h3{font-size:.98rem;display:flex;justify-content:space-between;align-items:center}
-.wday .task{padding:9px 11px;margin-top:8px}
-.wday .t-title{font-size:.9rem}
-.wday .acts .mini-btn{width:30px;height:30px}
+.wday h3{font-size:1rem;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.wday .wprog{height:6px;background:var(--surface);border:1px solid var(--line);border-radius:99px;overflow:hidden;margin-top:8px}
+.wday .wprog>i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:99px}
+/* compact week task card: stacked vertically so the title gets the full column width */
+.wtask{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 11px;margin-top:9px;transition:.18s}
+.wtask:hover{box-shadow:var(--shadow-sm)}
+.wtask.done{opacity:.72}
+.wtask.done .wt-title{text-decoration:line-through}
+.wt-time{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:.8rem;font-weight:800;color:var(--rose-deep);font-variant-numeric:tabular-nums}
+.wt-time .wt-dur{color:var(--ink2);font-weight:700;font-size:.74rem;white-space:nowrap}
+.wt-title{font-weight:800;font-size:.96rem;line-height:1.6;margin-top:3px;overflow-wrap:break-word}
+.wt-desc{font-size:.8rem;color:var(--ink2);line-height:1.55;margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wt-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.wt-meta .chip{font-size:.7rem;padding:0 8px}
+.cdot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:0 0 auto}
+.wt-acts{display:flex;gap:5px;align-items:center;margin-top:9px;padding-top:8px;border-top:1px dashed var(--line)}
+.wt-acts .sp{flex:1}
+.wt-acts .mini-btn{width:29px;height:29px;font-size:.82rem;border-radius:8px}
+.wt-acts .check-btn{width:27px;height:27px;margin-top:0;font-size:.78rem;border-width:2px}
 /* calendar */
 .cal-head{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:12px}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}
@@ -719,6 +735,13 @@ function taskCard(t,compact){const c=catById(t.catId);return '<div class="task '
  +(t.desc&&!compact?'<div class="muted small">'+esc(t.desc)+'</div>':"")
  +'<div class="t-meta"><span class="chip">🕐 '+fmtT(t.start)+" – "+fmtT(t.end)+'</span><span class="chip">⏱ '+durText(mins(t.end)-mins(t.start))+'</span><span class="chip">'+c.icon+" "+esc(c.name)+'</span>'+priChip(t.priority)+statusChip(t.status)+(+t.breakMin?'<span class="chip">☕ راحة '+t.breakMin+' د</span>':"")+'</div></div>'
  +'<div class="acts"><button class="mini-btn" data-act="edit" data-id="'+t.id+'" title="تعديل">✏️</button><button class="mini-btn" data-act="dup" data-id="'+t.id+'" title="تكرار">⧉</button><button class="mini-btn" data-act="del" data-id="'+t.id+'" title="حذف">🗑️</button></div></div>'}
+function weekTaskCard(t){const c=catById(t.catId);const done=t.status==="done";return '<div class="wtask'+(done?" done":"")+'">'
+ +'<div class="wt-time"><span>🕐 '+fmtT(t.start)+" – "+fmtT(t.end)+'</span><span class="wt-dur">⏱ '+durText(mins(t.end)-mins(t.start))+'</span></div>'
+ +'<div class="wt-title">'+(t.important?"⭐ ":"")+esc(t.title)+(t.postponed?' <span class="chip">⏳ مؤجلة</span>':"")+'</div>'
+ +(t.desc?'<div class="wt-desc">'+esc(t.desc)+'</div>':"")
+ +'<div class="wt-meta"><span class="chip"><i class="cdot" style="background:'+c.color+'"></i>'+c.icon+" "+esc(c.name)+'</span>'+priChip(t.priority)+statusChip(t.status)+(+t.breakMin?'<span class="chip">☕ راحة '+t.breakMin+' د</span>':"")+'</div>'
+ +'<div class="wt-acts"><button class="check-btn '+(done?"on":"")+'" data-act="toggle" data-id="'+t.id+'" title="تبديل الإنجاز">'+(done?"✓":"")+'</button><span class="sp"></span>'
+ +'<button class="mini-btn" data-act="edit" data-id="'+t.id+'" title="تعديل">✏️</button><button class="mini-btn" data-act="dup" data-id="'+t.id+'" title="تكرار">⧉</button><button class="mini-btn" data-act="del" data-id="'+t.id+'" title="حذف">🗑️</button></div></div>'}
 document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b)return;const t=S.tasks.find(x=>x.id===b.dataset.id);if(!t)return;const act=b.dataset.act;
  if(act==="toggle"){t.status=t.status==="done"?"todo":"done";save();if(t.status==="done")toast(CHEERS[Math.floor(Math.random()*CHEERS.length)]+" أنجزتِ: "+t.title);render()}
  if(act==="del")askConfirm("سيتم حذف مهمة «"+t.title+"» نهائيًا.",()=>{S.tasks=S.tasks.filter(x=>x.id!==t.id);save();toast("تم حذف المهمة");render()});
@@ -813,9 +836,11 @@ function renderWeek(){
  const match=t=>(!q||t.title.includes(q)||(t.desc||"").includes(q))&&(!fc||t.catId===fc)&&(!fp||t.priority===fp)&&(!fs||t.status===fs);
  let html="";
  for(let i=0;i<7;i++){const d=addDays(ws,i),k=dkey(d);const ts=tasksOn(k).filter(match);const isR=d.getDay()===S.settings.restDay,isT=k===todayKey();
-  html+='<div class="wday '+(isT?"today":"")+(isR?" rest":"")+'"><h3><span>'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+'</span><span class="tiny muted">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
-  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700">يوم راحة — أنت تستحقين هذا التوقف 🤍</div>':"")
-  +(ts.length?ts.map(t=>taskCard(t,true)).join(""):'<div class="tiny muted" style="padding:8px 2px">لا مهام مطابقة</div>')
+  const dn=ts.filter(t=>t.status==="done").length,pct=ts.length?Math.round(dn/ts.length*100):0;
+  html+='<div class="wday '+(isT?"today":"")+(isR?" rest":"")+'"><h3><span>'+DAY_NAMES[d.getDay()]+(isR?" 🌿":"")+(isT?' <span class="badge next">اليوم</span>':"")+'</span><span class="tiny muted">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
+  +(ts.length?'<div class="wprog"><i style="width:'+pct+'%"></i></div><div class="tiny muted" style="margin-top:4px">أنجزتِ '+dn+' من '+ts.length+' مهام</div>':"")
+  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700;margin-top:6px">يوم راحة — أنت تستحقين هذا التوقف 🤍</div>':"")
+  +(ts.length?ts.map(t=>weekTaskCard(t)).join(""):'<div class="tiny muted" style="padding:8px 2px">لا مهام مطابقة</div>')
   +'<button class="btn sm soft" style="width:100%;margin-top:9px" data-add-day="'+k+'">＋ إضافة</button></div>'}
  $("#weekBoard").innerHTML=html;
  $$("#weekBoard [data-add-day]").forEach(b=>b.onclick=()=>openTaskForm(null,b.dataset.addDay));
