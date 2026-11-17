@@ -843,7 +843,7 @@ function renderWeek(){
   const dn=ts.filter(t=>t.status==="done").length,pct=ts.length?Math.round(dn/ts.length*100):0;
   html+='<div class="wday '+(isT?"today":"")+(isR?" rest":"")+'"><h3><span class="wd-name">'+DAY_NAMES[d.getDay()]+(isR?' <span class="badge rest-badge">راحة 🌿</span>':"")+(isT?' <span class="badge next">اليوم</span>':"")+'</span><span class="wd-date">'+d.getDate()+"/"+(d.getMonth()+1)+'</span></h3>'
   +(ts.length?'<div class="wprog"><i style="width:'+pct+'%"></i></div><div class="tiny muted" style="margin-top:4px">أنجزتِ '+dn+' من '+ts.length+' مهام</div>':"")
-  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700;margin-top:6px">يوم راحة — أنت تستحقين هذا التوقف 🤍</div>':"")
+  +(isR?'<div class="tiny" style="color:#5c7052;font-weight:700;margin-top:6px">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿</div>':"")
   +(ts.length?ts.map(t=>weekTaskCard(t)).join(""):'<div class="tiny muted" style="padding:8px 2px">لا مهام مطابقة</div>')
   +'<button class="btn sm soft" style="width:100%;margin-top:9px" data-add-day="'+k+'">＋ إضافة</button></div>'}
  $("#weekBoard").innerHTML=html;
@@ -861,7 +861,7 @@ $("#copyPrevWeek").onclick=()=>{const ws=addDays(weekStartOf(new Date()),weekOff
 function renderDay(){
  const d=parseKey(selectedDate),isRest=d.getDay()===S.settings.restDay,isToday=selectedDate===todayKey();
  $("#dayPicker").value=selectedDate;
- $("#restDayBox").innerHTML=isRest?'<div class="rest-hero" style="margin-bottom:16px"><div class="big-ic">🌿</div><h2 style="font-size:1.4rem">اليوم يوم راحتك</h2><p style="margin:6px 0 0">أنت تستحقين هذا التوقف. استمتعي بيومك! 🤍<br><span class="small muted">'+pickDaily(PRAYER_QUOTES,2)+" — "+pickDaily(QUOTES,5)+'</span></p></div>':"";
+ $("#restDayBox").innerHTML=isRest?'<div class="rest-hero" style="margin-bottom:16px"><div class="big-ic">🌿</div><h2 style="font-size:1.4rem">اليوم يوم راحتك</h2><p style="margin:6px 0 0">يوم راحة وعبادة… روّق بالك واشحن طاقتك لأسبوع جديد 🌿<br><span class="small muted">'+pickDaily(PRAYER_QUOTES,2)+" — "+pickDaily(QUOTES,5)+'</span></p></div>':"";
  const ts=tasksOn(selectedDate);
  let items=[];
  ts.forEach(t=>items.push({m:mins(t.start),html:tlTask(t)}));
